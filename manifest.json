@@ -1,0 +1,16 @@
+ {
+ "name": "Hello World!",   
+ "version": "1.0",   
+ "description": "Language Tutor",   
+ "manifest_version": 2,
+ "browser_action": 
+	 {     
+	 "default_icon": "icon.png",     
+	 "default_popup": "practice.html"   
+	 },
+  "background": {
+    "page": "background.html"
+  },
+  "options_page": "settings.html"
+ } 
+ 
