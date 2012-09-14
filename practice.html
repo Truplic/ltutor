@@ -1,6 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
     <meta charset="utf-8">
     <title>Language Tutor</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,7 +16,7 @@
       }
     </style>
     <link href="assets/css/bootstrap-responsive.css" rel="stylesheet">
-
+	<link href="css/ltPracticeStyle.css" rel="stylesheet">
     <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -31,30 +32,13 @@
 
   <body>
 
-    <div class="navbar navbar-inverse navbar-fixed-top">
-      <div class="navbar-inner">
-        <div class="container">
-          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </a>
-          <a class="brand" href="#">Lingvo Tutor</a>
-          <div class="nav-collapse collapse">
-
-          </div><!--/.nav-collapse -->
-        </div>
-      </div>
-    </div>
-
     <div class="container">
 		<div class="row">
 			<form>
-				<div><input id="word" type="text" placeholder="word..."></div>
-				<div><textarea id="translation" rows="2" placeholder="translation..." ></textarea></div>
-				<button type="submit" id="ckeck" class="btn">Check</button>
-				<label>Description</label>
-				<textarea  id="description" rows="2" placeholder="description..."></textarea>
+				<div id="word" class='editable' type="text" ><strong>Eto me!</strong></div>
+				<div id="translation" class='editable input' contenteditable="true" >Translation</div>
+				<button id="checkBtn" type="submit" id="ckeck" class="btn">Check</button>
+				<div  id="description" class='editable' >Description</div>
 			</form>
 		</div>
     </div> <!-- /container -->

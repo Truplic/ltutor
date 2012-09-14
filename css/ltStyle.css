@@ -5,4 +5,4 @@ div.editable:focus{ outline: 1px solid #0088CC; }
 div.editable:focus:after { content: ""; }
 .delete-entry{cursor: pointer;}
 /*.edit-sucess{ outline: 1px solid green;}*/
-.edit-sucess:after { content: "Stored!"; position: absolute; top: -1px; right: -1px; font-size: 12px; color: green; padding: 0 10px 0 0; }
+.edit-sucess:after { content: "Stored!"; position: absolute; top: -1px; right: -1px; font-size: 12px; font-weight: bold; color: green; padding: 0 10px 0 0; }

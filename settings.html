@@ -1,5 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8">
     <title>LT Settings</title>
@@ -79,7 +81,21 @@
                     </a>
                   </div>
                   <div id="collapseTwo" class="accordion-body in collapse" style="height: auto; ">
-                    <div id="editDictBody" class="accordion-inner">
+                    <div id="dictTableContainer" class="accordion-inner">
+						
+						<button type="reset" id="activateNotificationWindow" class="btn">Activate Notification Window</button>
+						
+						<table id='dictTable' class="table table-hover">
+							<thead>
+								<tr>
+									<th>%</th>
+									<th>Word</th>
+									<th>Translation</th>
+									<th>Description</th>
+									<th>Delete</th>
+							   </tr>
+							</thead>
+						</table>
                     </div>
                   </div>
                 </div>

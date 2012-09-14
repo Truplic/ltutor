@@ -12,10 +12,11 @@ var entry = {
 	description: '',
 	state: ''
 }
-//console.log(chrome.extension.getBackgroundPage());
+
 $(function(){
+	loadDbEntries();
 	initListeners();
-	loadMyEntries();
+
 });
 
 
@@ -23,15 +24,58 @@ $(function(){
 
 function initListeners(){
 	"use strict"
+	
 	// add new word listener
 	$('#addNewEntryBtn').click(function(evt){
-		console.log('clicked');
 		entry.name ='add_entry';
 		entry.word = $('input#word').val();
 		entry.translation = $('#translation').val();
 		entry.description = $('#description').val();
 		chrome.extension.getBackgroundPage().db.tx(entry, newEntryCallback);
 	});
+	
+	$('#activateNotificationWindow').click(function(){
+		chrome.extension.getBackgroundPage().practice.start();
+	
+	});
+	// detect box editing; store edited entry {adding listeners for contenteditable & updating data on change]
+	var before='';
+	$('#dictTable').on('focus', 'div.editable', function(){
+		before = $(this).text();
+	}).on('blur', 'div.editable', function(){
+		if (before !== $(this).text())
+			$(this).trigger('change');
+	}).on('change', 'div.editable', function(){
+		var dbColumnName, rowId, boxId;
+		dbColumnName = $(this).attr('lt_dbLinked');
+		rowId =  $(this).closest('tr.table-row').attr('lt_dbLinked');
+		boxId = $(this).attr('id');
+		chrome.extension.getBackgroundPage().util.editDbRow(rowId, $(this).html(), dbColumnName, editEntryCallback(boxId));
+
+		/*.db.tx({ // store edited row to db
+				name: 'edit_entry', 
+				editedColumn: myEditedColumn,  
+				newValue: $(this).html(), 
+				id: rowId
+			}, editEntryCallback(boxId) );*/
+	});
+	
+	// delete/cancel row button listener
+	$('body').on('click', 'button.delete-row-btn', function(){
+		var dbId = $(this).attr('lt_dbLinked');
+		chrome.extension.getBackgroundPage().db.tx({name: 'delete_entry', id: dbId}, deleteEntryCallback(dbId));
+		$('div.popover').hide();
+	}).on('click', 'button.cancel-delete-row-btn', function(){
+		$('div.popover').fadeOut();
+	});
+	
+	
+	// remove popovers when user click elsewhere
+	$("body").click(function(){
+	  $("div.popover").fadeOut();
+	});
+	
+	
 }
 function newEntryCallback(){ 
 	"use strict"
@@ -39,43 +83,29 @@ function newEntryCallback(){
 	$('#sucessAlert').fadeIn("slow").fadeOut('slow');
 	
 	// refresh the editDict table
-	$('#editDictBody').find('table').remove();	// remove the old table
-	loadMyEntries(); 							// load new table
+	$('#dictTable').find('tbody').remove();		// remove the old rows from the dict table
+	loadDbEntries(); 							// load new rows
 }
 
 function bindTableListeners(){
 	"use strict"
 	
-	// remove entry (row)
-	$('.delete-entry').click(function(){
-		var entryId = $(this).closest('tr.table-row').attr('lt_dbLinked');
-		chrome.extension.getBackgroundPage().db.tx({name: 'delete_entry', id: entryId}, deleteEntryCallback(entryId));
-		//$(this).closest('tr').remove();
-	});	
-	
-	// edit table entry {adding listeners for contenteditable & updating data on change]
-	var before='';
-	$('div.editable')
-		.focus(function(){
-			before = $(this).text();
-		}).blur(function(){
-			if (before !== $(this).text()){
-				$(this).trigger('change');
-			}
-		}).change(function(){
-			var myEditedColumn, rowId, boxId;
-			myEditedColumn = $(this).attr('lt_dbLinked');
-			rowId =  $(this).closest('tr.table-row').attr('lt_dbLinked');
-			boxId = $(this).attr('id');
-			
-			// store edited row to db
-			chrome.extension.getBackgroundPage().db.tx({
-					name: 'edit_entry', 
-					editedColumn: myEditedColumn,  
-					newValue: $(this).text(), 
-					id: rowId
-				}, editEntryCallback(boxId) );
-		});
+	$('.delete-entry').popover({
+		placement: 'top', 
+		trigger: 'manual',
+		html: 'true',
+		content: function(){ 
+			return '<div class="row-fluid">'
+			+	  '<button type="button" class="delete-row-btn btn btn-primary btn-danger span6" lt_dblinked="'+$(this).closest('tr.table-row').attr('lt_dblinked')+'">Yes</button>'
+			+	  '<button type="button" class="cancel-delete-row-btn btn span6">Cancel</button>'
+			+	'</div>'},
+		title: function(){ return 'Delete <strong>'+ $(this).closest('tr.table-row').find('.editable[lt_dblinked="word"]').text() +'</strong>?'}
+	}).click(function(e){
+		$('div.popover').fadeOut();
+		$(this).popover('show');
+		e.stopPropagation();
+	});
+
 }
 function editEntryCallback(boxId){
 	"use strict"
@@ -84,26 +114,17 @@ function editEntryCallback(boxId){
 	setTimeout(function() { $('#'+boxId).removeClass('edit-sucess');},1000);
 }
 
-function loadMyEntries(){
+function loadDbEntries(){
 	"use strict"
-	chrome.extension.getBackgroundPage().db.tx({name: 'get_all_entries'}, loadMyEntriesCallback); // initial load of dictionary of entries
+	chrome.extension.getBackgroundPage().db.tx({name: 'get_all_entries'}, loadDbEntriesCallback); // initial load of dictionary of entries
 }
-function loadMyEntriesCallback (tx, rs){
+function loadDbEntriesCallback (tx, rs){
 	"use strict"
-	var rowOutput = '<table class="table table-hover">'
-					+'<thead>'
-					+	'<tr>'
-					+		'<th>%</th>'
-					+		'<th>Word</th>'
-					+		'<th>Translation</th>'
-					+		'<th>Description</th>'
-					+		'<th>Delete</th>'
-					+   '</tr>'
-					+'</thead><tbody>';
+	var rowOutput = '<tbody>';
 	for (var i=rs.rows.length-1; i >= 0 ; i--) {
 		rowOutput += renderRow(rs.rows.item(i));
 	}
-	$('#editDictBody').append(rowOutput+'</tbody></table>');
+	$('#dictTable').append(rowOutput+'</tbody>');
 	bindTableListeners();	// new content is added which requires new listeners
 }
 function renderRow(row) {
@@ -122,13 +143,13 @@ function renderRow(row) {
 	+		'<td><div id="translation_'+ row.id +'" class="editable" contenteditable="true" lt_dbLinked="translation">'+row.translation+'</div></td>'
 	+		'<td><div id="description_'+ row.id +'" class="editable" contenteditable="true" lt_dbLinked="description">'+row.description+'</div></td>'
 	+		'<td style="vertical-align:middle;">'
-	+			'<i class="delete-entry icon-trash"></i>'
+	+			'<i href="#" class="delete-entry icon-trash" ></i>'
 	+		'</td>'
 	+'</tr>';
 }
 
 function deleteEntryCallback(entryId){
 	"use strict"
-	//console.log('deleted row has ID'+ $('.table-row[lt_dbLinked='+entryId+']'));
-	$('.table-row[lt_dbLinked='+entryId+']').remove();
+	$('.table-row[lt_dbLinked='+entryId+']').fadeOut();
 }
+//<button type="button" class="btn btn-warning">Warning</button>

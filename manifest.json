@@ -3,6 +3,11 @@
  "version": "1.0",   
  "description": "Language Tutor",   
  "manifest_version": 2,
+ "permissions": [
+    "contextMenus",
+	"notifications",
+	"tabs"
+  ],
  "browser_action": 
 	 {     
 	 "default_icon": "icon.png",     
