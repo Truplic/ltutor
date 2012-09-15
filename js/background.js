@@ -51,6 +51,29 @@ var util = {
 	}
 }
 
+// Called when the user clicks on the browser action.
+chrome.browserAction.onClicked.addListener(function(tab) {
+	console.log('should activate script');
+});
+
+chrome.browserAction.setBadgeBackgroundColor({color:[0, 200, 0, 100]});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
 var practice = {
 	table: new Array(),
 	start: function(){
@@ -99,4 +122,4 @@ var practice = {
 	}
 
 }
-
+*/

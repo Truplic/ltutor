@@ -54,18 +54,13 @@ var db = {
 			
 			break;
 			
-		case 'get_n_where_state':
+		case 'get_n_where':
 
-			query = 'SELECT * FROM lt_dict WHERE state = "'+ r.state +'" LIMIT '+ r.limit +'';
+			query = 'SELECT * FROM lt_dict WHERE '+ r.colName +' = "'+ r.colVal +'" LIMIT '+ r.limit +'';
 			row = [];
 			
 			break;
-		case 'get_n_waiting':
 
-			query = 'SELECT * FROM lt_dict WHERE state = "waiting" LIMIT 2';
-			row = [];
-			
-			break;
 		default:
 			console.log('default in tx');
 		}

@@ -6,3 +6,59 @@ div.editable:focus:after { content: ""; }
 .delete-entry{cursor: pointer;}
 /*.edit-sucess{ outline: 1px solid green;}*/
 .edit-sucess:after { content: "Stored!"; position: absolute; top: -1px; right: -1px; font-size: 12px; font-weight: bold; color: green; padding: 0 10px 0 0; }
+
+div.progress  { width:150px; margin-bottom: 0px;  text-indent: -9999px; }
+table#dictTable tr td:first-child, table#dictTable tr td:nth-child(5){ width:150px; vertical-align: middle; text-align: center; }
+table#dictTable tr td:nth-child(5){ width:75px; }
+/*i.delete-entry{padding: 5px; background-color: red;}*/
+div[lt_dbLinked="word"]{font-style:italic;}
+
+
+
+/* data tables bootstrap style */
+div.dataTables_length label {
+	float: left;
+	text-align: left;
+}
+
+div.dataTables_length select {
+	width: 75px;
+}
+
+div.dataTables_filter label {
+	float: right;
+}
+
+div.dataTables_info {
+	padding-top: 8px;
+}
+
+div.dataTables_paginate {
+	float: right;
+	margin: 0;
+}
+
+table.table {
+	clear: both;
+	margin-bottom: 6px !important;
+}
+
+table.table thead .sorting,
+table.table thead .sorting_asc,
+table.table thead .sorting_desc,
+table.table thead .sorting_asc_disabled,
+table.table thead .sorting_desc_disabled {
+	cursor: pointer;
+	*cursor: hand;
+}
+
+table.table thead .sorting { background: url('DataTables/images/sort_both.png') no-repeat center right; }
+table.table thead .sorting_asc { background: url('DataTables/images/sort_asc.png') no-repeat center right; }
+table.table thead .sorting_desc { background: url('DataTables/images/sort_desc.png') no-repeat center right; }
+
+table.table thead .sorting_asc_disabled { background: url('DataTables/images/sort_asc_disabled.png') no-repeat center right; }
+table.table thead .sorting_desc_disabled { background: url('DataTables/images/sort_desc_disabled.png') no-repeat center right; }
+
+table.dataTable th:active {
+	outline: none;
+}
