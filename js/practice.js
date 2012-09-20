@@ -1,34 +1,33 @@
 $(function(){
 
 //var table = chrome.extension.getBackgroundPage().util.getPracticeTable();
-var data = JSON.parse(window.location.hash.substr(1));
-console.log('#data:  '+data.length);
-console.log(data);
-//console.log('practice table is: ' + chrome.extension.getBackgroundPage().util.table);
+//var data = JSON.parse(window.location.hash.substr(1));
+
 initListeners();
-
+//chrome.extension.getBackgroundPage().send();
 });
-
+var start;
 function initListeners(){
-	$('#checkBtn').click(function(){
+	/*$('#checkBtn').click(function(){
 		
 	});
-	$('#translation').keydown(function(event){
-		event.stopPropagation();asd
-	});
+*/
+start = new Date().getTime();
+	chrome.extension.getBackgroundPage().practice.sendSessionData();
 }
+chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
+	$('#tLoading').text('Data loaded in ' + (new Date().getTime() - start) + 'ms');
+	session.dataArray = request;
+	
+	$('#word').html(request[0].word);
+	$('#description').html(request[0].description);
+	console.log(request);
+	//alert('data received');
+});
+
+session = {
+	received: false,
+	data: ''
 
 
-/*
-chrome.extension.onMessage.addListener(
-	function(request, sender, sendResponse){
-		if(request.msg === 'msg_to_Practice')
-			alert("Message received in Practice !" + request.msg);
-	}
-);*/
-
-	//console.log(window.location.hash.substr(1));
-	//var data = JSON.parse(window.location.hash.substr(1));
-
-	//console.log('var1 is ' + data.var1 + ' var2 is' + data.var2);
-	//console.log('Fetch data from db ' + i);
+}

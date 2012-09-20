@@ -1,12 +1,129 @@
 $(function(){
-	chrome.extension.onMessage.addListener(
+	/*chrome.extension.onMessage.addListener(
 		function(request, sender, sendResponse){
 			if(request.msg === 'msg_to_Bg')
 				alert("Message received in Background !" + request.msg);
 		}
 	);
+	*/
 	
+	init();
 });
+
+function init(){
+
+	/*var t=setInterval(function() {
+		notification.show();
+	
+	}, 10 * 1000);*/
+	
+	setTimeout(function() {
+		notification.show();
+	},0.5 * 1000);
+
+}
+var notification = {
+	notification:'',
+	show: function(){
+		this.closeAll();
+		
+		this.notification = webkitNotifications.createHTMLNotification(
+			'notification.html'
+		);
+		this.notification.ondisplay = function(ev){
+			//console.log("ondisplay");
+			practice.closeAll();
+		};	
+		this.notification.onclose = function(){
+			//console.log("onclose");
+		};
+		this.notification.onerror= function(){
+			//console.log("onerror");
+		};
+		this.notification.show();
+		
+	},
+	closeAll: function(){
+		// close ALL previous notifications
+		chrome.extension.getViews({type:"notification"}).forEach(function(win) {
+			win.close();
+		});
+	}
+}
+
+
+var practice = {
+	openedTabsId: new Array(),
+	sessionData: new Array(),
+	newTab: function(){
+		chrome.tabs.create({'url': chrome.extension.getURL('practice.html')}, function(tab) {
+			console.log('tab created with id: ' + tab.id);
+			practice.openedTabsId.push(tab.id);
+			//practice.sendSessionData();
+		});
+	
+	},
+	closeAll: function(){
+		if (this.openedTabsId.length > 0){
+			chrome.tabs.remove(this.openedTabsId, function(){
+				console.log('Tabs to be removed: ' + practice.openedTabsId );
+				practice.openedTabsId = [];	
+			});
+		}
+	},
+	sendSessionData: function(){
+
+		
+		//chrome.tabs.sendMessage(this.openedTabsId[0], {id: 'ping'});
+		//chrome.tabs.sendMessage(this.openedTabsId[0], this.getSessionData());
+
+		db.tx({name: 'get_n_where', colName: 'state', colVal: 'active', limit: '20'}, function(tx, rs){
+			var nWords, nActiveRows;
+			
+			practice.sessionData = []; // clear the array
+			nActiveRows = rs.rows.length;
+			nWords = 20;
+			
+			for (var i = 0; i < nActiveRows; i++) {
+				practice.sessionData.push( rs.rows.item(i)); 								// put new (state: active) element in the array
+			}
+
+			if (nActiveRows === nWords){	// TODO: substitute 20 with locally stored variable
+				console.log(practice.sessionData);
+				chrome.tabs.sendMessage(practice.openedTabsId[0], practice.sessionData);
+
+			} else {
+				db.tx({name: 'get_n_where', colName: 'state', colVal: 'waiting', limit: (nWords - nActiveRows)}, function(tx, rs){ 
+					// callback for 'waiting' rows 
+					for (var i = 0; i < rs.rows.length; i++) {
+						practice.sessionData.push( rs.rows.item(i)); 								// put new element in the array
+						db.tx({ // set state in the db to 'active'
+							name: 'edit_entry', 
+							editedColumn: 'state',  
+							newValue: 'active', 
+							id: rs.rows.item(i).id
+						}, []);
+
+					}
+					console.log(practice.sessionData);
+					chrome.tabs.sendMessage(practice.openedTabsId[0], practice.sessionData);
+				}); 
+			}
+		});
+		
+		
+	}
+
+
+}
+
+
+
+
+
+
+
+
 
 
 //menu: function() {
@@ -53,10 +170,9 @@ var util = {
 
 // Called when the user clicks on the browser action.
 chrome.browserAction.onClicked.addListener(function(tab) {
-	console.log('should activate script');
+	console.log('opened');
+	alert('opened');
 });
-
-chrome.browserAction.setBadgeBackgroundColor({color:[0, 200, 0, 100]});
 
 
 

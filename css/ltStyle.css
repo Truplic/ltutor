@@ -3,7 +3,7 @@ div.editable:hover { outline: 1px dashed #ddd; }
 div.editable:hover:after { content: "click to edit"; position: absolute; top: -1px; right: -1px; font-size: 12px; color: #9da0a4; padding: 0 10px 0 0; }
 div.editable:focus{ outline: 1px solid #0088CC; }
 div.editable:focus:after { content: ""; }
-.delete-entry{cursor: pointer;}
+button.close.delete-entry{ cursor: pointer; text-align: center; clear:both;}
 /*.edit-sucess{ outline: 1px solid green;}*/
 .edit-sucess:after { content: "Stored!"; position: absolute; top: -1px; right: -1px; font-size: 12px; font-weight: bold; color: green; padding: 0 10px 0 0; }
 

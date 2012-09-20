@@ -136,7 +136,7 @@ function renderRow(row) {
         '<div id="word'+ row.id +'" class="editable" contenteditable="true" lt_dbLinked="word" >'+row.word+'</div>',
         '<div id="translation_'+ row.id +'" class="editable" contenteditable="true" lt_dbLinked="translation">'+row.translation+'</div>',
         '<div id="description_'+ row.id +'" class="editable" contenteditable="true" lt_dbLinked="description">'+row.description+'</div>',
-		'<i href="#" class="delete-entry icon-trash" ></i>'] );
+		'<i href="#" class="delete-entry icon-trash" ></i>'] ); 
 	
 	// Add attributes to the added row 
 	cRowElement = dictDT.fnSettings().aoData[ a ].nTr;
