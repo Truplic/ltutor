@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>Bootstrap, from Twitter</title>
+    <title>Language Tutor</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
@@ -11,8 +11,9 @@
     <link href="assets/css/bootstrap.css" rel="stylesheet">
     <style>
       body {
-        padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+        margin:0; padding:0;
       }
+	  table{ padding: 4px 0px 4px 0px;}
     </style>
     <link href="assets/css/bootstrap-responsive.css" rel="stylesheet">
 
@@ -32,11 +33,25 @@
   <body>
 
     <div class="container">
-		<div class="row-fluid">
-			<button id="startPracticeBtn" type="submit" class="btn btn-success ">Start</button>
-			<button id="snoozePracticeBtn" type="submit" class="btn btn-warning ">Snooze</button>
-		</div>
+	<table>
+		<tbody>
+			<tr>
+				<td rowspan="2"><img src="icons/icon_48x48.png" alt="Language Tutor"></td>
+				<td class='noWords hidden'>The dictionary is empty.</td>
+			</tr>
+			<tr>
+				<td>
+					<div class="row-fluid">
+						<button id="startPracticeBtn" type="submit" class="btn btn-success hidden">Start</button>
+						<button id="snoozePracticeBtn" type="submit" class="btn btn-warning hidden">Snooze</button>
+						<button id="addWordsPracticeBtn" type="submit" class="btn btn btn-info noWords hidden">Add Words</button>
+					</div>
+				</td>
+			</tr>
+		</tbody>
+	</table>
     </div> <!-- /container -->
+
 
     <!-- Le javascript
     ================================================== -->

@@ -23,47 +23,61 @@ function init(){
 
 }
 var notification = {
-	notification:'',
+	window:'',
+	nFetchedWords: 0,
 	show: function(){
 		this.closeAll();
 		
-		this.notification = webkitNotifications.createHTMLNotification(
+		this.window = webkitNotifications.createHTMLNotification(
 			'notification.html'
 		);
-		this.notification.ondisplay = function(ev){
+		practice.fetchSessionData(this.showCallback);
+		
+		this.window.ondisplay = function(ev){
 			//console.log("ondisplay");
 			practice.closeAll();
 		};	
-		this.notification.onclose = function(){
+		this.window.onclose = function(){
 			//console.log("onclose");
 		};
-		this.notification.onerror= function(){
+		this.window.onerror= function(){
 			//console.log("onerror");
 		};
-		this.notification.show();
+		//this.window.show();
 		
 	},
-	closeAll: function(){
-		// close ALL previous notifications
+	showCallback: function(){
+		notification.nFetchedWords = practice.sessionData.length;
+		console.log('There are ' + notification.nFetchedWords + ' fetched  words to practice');
+		notification.window.show();
+	},
+	closeAll: function(){ // close ALL previous notifications
 		chrome.extension.getViews({type:"notification"}).forEach(function(win) {
 			win.close();
 		});
 	}
 }
 
-
+// timerEnds->fetchDataFromDb->OpenNotification->onClickStartPractice->openPracticeTab->sendFetchedData
 var practice = {
 	openedTabsId: new Array(),
 	sessionData: new Array(),
+	start: function(){
+		practice.newTab();									
+	},
 	newTab: function(){
 		chrome.tabs.create({'url': chrome.extension.getURL('practice.html')}, function(tab) {
 			console.log('tab created with id: ' + tab.id);
 			practice.openedTabsId.push(tab.id);
-			//practice.sendSessionData();
 		});
-	
 	},
-	closeAll: function(){
+	addWords: function(){
+		chrome.tabs.create({'url': chrome.extension.getURL('options.html')}, function(tab) {
+			console.log('tab created with id: ' + tab.id);
+			practice.openedTabsId.push(tab.id);
+		});
+	},
+	closeAll: function(){ // close all practice tabs
 		if (this.openedTabsId.length > 0){
 			chrome.tabs.remove(this.openedTabsId, function(){
 				console.log('Tabs to be removed: ' + practice.openedTabsId );
@@ -71,12 +85,7 @@ var practice = {
 			});
 		}
 	},
-	sendSessionData: function(){
-
-		
-		//chrome.tabs.sendMessage(this.openedTabsId[0], {id: 'ping'});
-		//chrome.tabs.sendMessage(this.openedTabsId[0], this.getSessionData());
-
+	fetchSessionData: function(callback){
 		db.tx({name: 'get_n_where', colName: 'state', colVal: 'active', limit: '20'}, function(tx, rs){
 			var nWords, nActiveRows;
 			
@@ -89,9 +98,8 @@ var practice = {
 			}
 
 			if (nActiveRows === nWords){	// TODO: substitute 20 with locally stored variable
-				console.log(practice.sessionData);
-				chrome.tabs.sendMessage(practice.openedTabsId[0], practice.sessionData);
-
+				// console.log(practice.sessionData);
+				callback();
 			} else {
 				db.tx({name: 'get_n_where', colName: 'state', colVal: 'waiting', limit: (nWords - nActiveRows)}, function(tx, rs){ 
 					// callback for 'waiting' rows 
@@ -105,16 +113,16 @@ var practice = {
 						}, []);
 
 					}
-					console.log(practice.sessionData);
-					chrome.tabs.sendMessage(practice.openedTabsId[0], practice.sessionData);
+					// console.log(practice.sessionData);
+					callback();
 				}); 
 			}
 		});
-		
-		
+	
+	},
+	getSessionData: function(){	// is called from practice tab
+		chrome.tabs.sendMessage(practice.openedTabsId[0], practice.sessionData);
 	}
-
-
 }
 
 
@@ -134,7 +142,7 @@ var practice = {
 		onclick: function(info, tab) {
 			if (info.pageUrl.match(/https:\/\/chrome.google.com\/[extensions|webstore]/i))
 				return alert('Lingvo Tutor can\'t add words from thos page.');
-			chrome.tabs.create({url: chrome.extension.getURL('settings.html')});
+			chrome.tabs.create({url: chrome.extension.getURL('options.html')});
 		}, 
 		contexts:['all']
 	});
@@ -170,8 +178,7 @@ var util = {
 
 // Called when the user clicks on the browser action.
 chrome.browserAction.onClicked.addListener(function(tab) {
-	console.log('opened');
-	alert('opened');
+	chrome.tabs.create({url: chrome.extension.getURL('options.html')});
 });
 
 

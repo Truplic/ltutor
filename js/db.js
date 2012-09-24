@@ -1,6 +1,6 @@
 var db = {
 	open: function(){
-		var database = openDatabase('lt_dictdb', '', 'Database to store word, translation, description... values', 5 * 1024 * 1024);
+		var database = openDatabase('lt_dbsdb', '', 'Database to store word, translation, description... values', 5 * 1024 * 1024);
 		db.open = function() { return database; };
 		db.tx({name: 'create_table'}, [])
 		return database;
@@ -11,14 +11,14 @@ var db = {
 		
 		switch (r.name){
 		case 'create_table':
-			query = 'CREATE TABLE IF NOT EXISTS lt_dict (' 
+			query = 'CREATE TABLE IF NOT EXISTS lt_dbs (' 
 						+	'id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,' 
 						+	'word TEXT NOT NULL,'
 						+	'translation TEXT NOT NULL,'
 						+ 	'description TEXT,'
 						+	'state TEXT,'
-						+	'hits INTEGER NOT NULL,'
-						+	'nOfTries INTEGER NOT NULL,'
+						+	'hits UNSIGNED INTEGER NOT NULL,'
+						+	'tries UNSIGNED INTEGER NOT NULL,'
 						+	'created DATETIME DEFAULT CURRENT_TIMESTAMP,'
 						+	'modified DATETIME DEFAULT CURRENT_TIMESTAMP);';
 			row = [];
@@ -27,8 +27,8 @@ var db = {
 			
 		case 'add_entry':
 			var created = new Date();
-			query = 'INSERT INTO lt_dict ('
-						+	'word, translation, description, state, hits, nOfTries, created, modified) '
+			query = 'INSERT INTO lt_dbs ('
+						+	'word, translation, description, state, hits, tries, created, modified) '
 						+	'VALUES (?,?,?,?,?,?,?,?)';
 						
 			row = [r.word, r.translation, r.description, 'waiting', '0', '0', created, created];
@@ -37,26 +37,32 @@ var db = {
 
 		case 'delete_entry':
 
-			query = 'DELETE FROM lt_dict WHERE ID=? ';
+			query = 'DELETE FROM lt_dbs WHERE ID=? ';
 			row = [r.id];
 
 			break;
 		case 'edit_entry':
 
-			query = 'UPDATE lt_dict SET ' + r.editedColumn + '=? WHERE id =?';
+			query = 'UPDATE lt_dbs SET ' + r.editedColumn + '=? WHERE id =?';
 			row = [r.newValue, r.id ];
+
+			break;
+		case 'validation_update':
+
+			query = 'UPDATE lt_dbs SET tries = tries + 1, hits = hits + '+ r.validation +'  WHERE id =?';
+			row = [r.id ];
 
 			break;
 		case 'get_all_entries':
 
-			query = 'SELECT * FROM lt_dict ';
+			query = 'SELECT * FROM lt_dbs ';
 			row = [];
 			
 			break;
 			
 		case 'get_n_where':
 
-			query = 'SELECT * FROM lt_dict WHERE '+ r.colName +' = "'+ r.colVal +'" LIMIT '+ r.limit +'';
+			query = 'SELECT * FROM lt_dbs WHERE '+ r.colName +' = "'+ r.colVal +'" LIMIT '+ r.limit +'';
 			row = [];
 			
 			break;

@@ -42,7 +42,7 @@ function initListeners(){
 				id: rowId
 			}, editEntryCallback(boxId) );*/
 			
-	}).on('click', '.delete-entry', function(e){	// bind event listener for delete tooltip
+	}).on('click', 'button#delRowBtn', function(e){	// bind event listener for delete tooltip
 		$('div.popover').fadeOut().remove();
 		$(this).popover({
 			placement: 'top', 
@@ -126,7 +126,7 @@ function renderRow(row) {
 	"use strict"
 	var hits, progressbarColor, cRowElement;
 	hits = parseFloat(row.hits) / 20 * 100; // TODO: substitute 20 with stored settings value
-	progressbarColor = (hits === 100) ? 'progress-success': 'progress-info progress-striped active';
+	progressbarColor = (hits >= 100) ? 'progress-success': 'progress-info progress-striped active';
 	
 	// Add row to datatable
     var a = dictDT.fnAddData( [
@@ -136,7 +136,7 @@ function renderRow(row) {
         '<div id="word'+ row.id +'" class="editable" contenteditable="true" lt_dbLinked="word" >'+row.word+'</div>',
         '<div id="translation_'+ row.id +'" class="editable" contenteditable="true" lt_dbLinked="translation">'+row.translation+'</div>',
         '<div id="description_'+ row.id +'" class="editable" contenteditable="true" lt_dbLinked="description">'+row.description+'</div>',
-		'<i href="#" class="delete-entry icon-trash" ></i>'] ); 
+		'<button id="delRowBtn" type="button" class="btn"><i href="#" class="icon-trash" ></i></button>'] ); 
 	
 	// Add attributes to the added row 
 	cRowElement = dictDT.fnSettings().aoData[ a ].nTr;
