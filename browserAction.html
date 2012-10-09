@@ -9,11 +9,11 @@
 
     <!-- Le styles -->
     <link href="assets/css/bootstrap.css" rel="stylesheet">
+	<link href="css/ltPractice.css" rel="stylesheet">
     <style>
       body {
-        margin:0; padding:0;
+        padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
       }
-	  table{ padding: 4px 0px 4px 0px;}
     </style>
     <link href="assets/css/bootstrap-responsive.css" rel="stylesheet">
 
@@ -32,27 +32,41 @@
 
   <body>
 
-    <div class="container">
-	<table>
-		<tbody>
-			<tr>
-				<td rowspan="2"><img src="icons/icon_48x48.png" alt="Language Tutor"></td>
-				<td class='noWords hidden'>The dictionary is empty.</td>
-			</tr>
-			<tr>
-				<td>
-					<div class="row-fluid">
-						<button id="startPracticeBtn" type="submit" class="btn btn-success hidden">Start</button>
-						<button id="addWordsPracticeBtn" type="submit" class="btn btn btn-info noWords hidden">Add Words</button>
-						<button id="snoozePracticeBtn" type="submit" class="btn btn-warning">Snooze</button>
-						
-					</div>
-				</td>
-			</tr>
-		</tbody>
-	</table>
-    </div> <!-- /container -->
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
 
+          <a class="brand" href="#">Language Tutor</a>
+          <div class="nav-collapse collapse">
+            <ul class="nav">
+
+            </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+
+    <div class="container practice-container">
+	<table>
+		<tr>
+			<td><button id="runPractice" type="button" class="btn"><i href="#" class="icon-play" ></i></button></td>
+			<td><button id="runAddWord" type="button" class="btn"><i href="#" class="icon-plus" ></i></button></td>
+		</tr>
+		<tr>
+		<td><button id="runDictionary" type="button" class="btn"><i href="#" class="icon-book" ></i></button></td>
+		<td><button id="runSettings" type="button" class="btn"><i href="#" class="icon-cog" ></i></button></td>
+		</tr>
+	</table>
+		<!-- Practice -->
+		
+		<!-- Add Word -->
+		
+		<!-- Open Database -->
+		
+		<!-- Settings -->
+		
+
+    </div> <!-- /container -->
 
     <!-- Le javascript
     ================================================== -->
@@ -62,12 +76,15 @@
     <script src="assets/js/bootstrap-alert.js"></script>
     <script src="assets/js/bootstrap-modal.js"></script>
     <script src="assets/js/bootstrap-dropdown.js"></script>
+    <script src="assets/js/bootstrap-scrollspy.js"></script>
+    <script src="assets/js/bootstrap-tab.js"></script>
     <script src="assets/js/bootstrap-tooltip.js"></script>
     <script src="assets/js/bootstrap-popover.js"></script>
     <script src="assets/js/bootstrap-button.js"></script>
     <script src="assets/js/bootstrap-collapse.js"></script>
+    <script src="assets/js/bootstrap-carousel.js"></script>
     <script src="assets/js/bootstrap-typeahead.js"></script>
-	<script src="js/notification.js"></script>
+	<script src="js/browserAction.js"></script>
   </body>
 </html>
 

@@ -15,12 +15,22 @@ function init(){
 	/*var t=setInterval(function() {
 		notification.show();
 	
-	}, 10 * 1000);*/
+	}, settings.set('sessionFreq') * 60 * 1000);*/
 	
 	setTimeout(function() {
 		notification.show();
 	},0.5 * 1000);
 
+	// SETTINGS Initialization
+	if(settings.get('sessionFreq') == null)
+		settings.set('sessionFreq', 120);
+	if(settings.get('learnedTreshold') == null)	
+		settings.set('learnedTreshold', 5);
+	if(settings.get('wordsPerSession') == null)
+		settings.set('wordsPerSession', 3);
+	if(settings.get('learningMode') == null)
+		settings.set('learningMode', 'tutorMode');
+	
 }
 var notification = {
 	window:'',
@@ -48,7 +58,6 @@ var notification = {
 	},
 	showCallback: function(){
 		notification.nFetchedWords = practice.sessionData.length;
-		console.log('There are ' + notification.nFetchedWords + ' fetched  words to practice');
 		notification.window.show();
 	},
 	closeAll: function(){ // close ALL previous notifications
@@ -63,12 +72,14 @@ var practice = {
 	openedTabsId: new Array(),
 	sessionData: new Array(),
 	start: function(){
+		practice.closeAll();
 		practice.newTab();									
 	},
 	newTab: function(){
 		chrome.tabs.create({'url': chrome.extension.getURL('practice.html')}, function(tab) {
-			console.log('tab created with id: ' + tab.id);
 			practice.openedTabsId.push(tab.id);
+			console.log('tab created with id: ' + tab.id);
+			//practice.sendSessionData();
 		});
 	},
 	addWords: function(){
@@ -83,23 +94,25 @@ var practice = {
 				console.log('Tabs to be removed: ' + practice.openedTabsId );
 				practice.openedTabsId = [];	
 			});
+			
 		}
 	},
 	fetchSessionData: function(callback){
-		db.tx({name: 'get_n_where', colName: 'state', colVal: 'active', limit: '20'}, function(tx, rs){
-			var nWords, nActiveRows;
+		var nWords = settings.get('wordsPerSession');
+		db.tx({name: 'get_n_where', colName: 'state', colVal: 'active', limit: nWords}, function(tx, rs){
+			var nActiveRows;
 			
 			practice.sessionData = []; // clear the array
 			nActiveRows = rs.rows.length;
-			nWords = 20;
+			nWords = settings.get('wordsPerSession');
 			
 			for (var i = 0; i < nActiveRows; i++) {
 				practice.sessionData.push( rs.rows.item(i)); 								// put new (state: active) element in the array
 			}
 
-			if (nActiveRows === nWords){	// TODO: substitute 20 with locally stored variable
-				// console.log(practice.sessionData);
+			if (nActiveRows === nWords){
 				callback();
+				console.log('fetchSessionData: There are ' + nWords + ' fetched  words to practice');
 			} else {
 				db.tx({name: 'get_n_where', colName: 'state', colVal: 'waiting', limit: (nWords - nActiveRows)}, function(tx, rs){ 
 					// callback for 'waiting' rows 
@@ -113,16 +126,65 @@ var practice = {
 						}, []);
 
 					}
-					// console.log(practice.sessionData);
 					callback();
+					console.log('fetchSessionData: There are ' + nWords + ' fetched  words to practice');
 				}); 
 			}
 		});
 	
 	},
-	getSessionData: function(){	// is called from practice tab
-		chrome.tabs.sendMessage(practice.openedTabsId[0], practice.sessionData);
+	sendSessionData: function(){	// is called from practice tab
+		
+		//if (practice.openedTabsId.length){
+			console.log('sending data to tab' );
+			chrome.tabs.getSelected(null, function(tabs){
+				chrome.tabs.sendMessage(tabs.id, {action: 'sessionDataArray', data: practice.sessionData});
+			
+			});
+			//chrome.tabs.sendMessage(practice.openedTabsId[0], practice.sessionData);
+		/*} else {
+			console.log('ERROR! There is no active tabs: ' + practice.openedTabsId );
+		}*/
 	}
+}
+
+
+chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
+	if(request.action === 'sendSessionData'){  // Called from practice page in order to send the data
+		console.log(request.action);
+		practice.sendSessionData();
+	}
+});
+
+
+var settings = {
+	set: function(key, value){
+		try {
+		  window.localStorage.removeItem(key);
+		  window.localStorage.setItem(key, value);
+		}catch(e) {
+		  console.log("Error inside setItem");
+		  console.log(e);
+		}
+	},
+	get: function(key) {
+		var value;
+		try {
+		  value = window.localStorage.getItem(key);
+		}catch(e) {
+		  console.log("Error inside getItem() for key:" + key);
+		  console.log(e);
+		  value = "null";
+		}
+		return value;
+	}/*,
+
+	clearStrg: function(){ 
+		console.log('about to clear local storage');
+		window.localStorage.clear();
+		console.log('cleared');
+	}*/
+  
 }
 
 
@@ -132,6 +194,10 @@ var practice = {
 
 
 
+// Called when the user clicks on the browser action.
+/*chrome.browserAction.onClicked.addListener(function(tab) {
+	chrome.tabs.create({url: chrome.extension.getURL('options.html')});
+});*/
 
 
 //menu: function() {
@@ -142,6 +208,7 @@ var practice = {
 		onclick: function(info, tab) {
 			if (info.pageUrl.match(/https:\/\/chrome.google.com\/[extensions|webstore]/i))
 				return alert('Lingvo Tutor can\'t add words from thos page.');
+
 			chrome.tabs.create({url: chrome.extension.getURL('options.html')});
 		}, 
 		contexts:['all']
@@ -152,6 +219,21 @@ var practice = {
 	//return id;
 //}
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /*	
 var data1 = {
 	var1: "somedata",
@@ -161,7 +243,7 @@ var data2 = {
 	var1: "somedata",
 	var2: 12345
 } 
-*/
+
 
 var util = {
 	// db[id, columnName] = newValue
@@ -175,11 +257,8 @@ var util = {
 	
 	}
 }
+*/
 
-// Called when the user clicks on the browser action.
-chrome.browserAction.onClicked.addListener(function(tab) {
-	chrome.tabs.create({url: chrome.extension.getURL('options.html')});
-});
 
 
 

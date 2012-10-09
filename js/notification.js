@@ -9,7 +9,7 @@ function showButtons(){
 	if(mynWords === 0){
 		$('.noWords').removeClass('hidden');
 	} else {
-		$('button#startPracticeBtn, button#snoozePracticeBtn').removeClass('hidden');
+		$('button#startPracticeBtn').removeClass('hidden');
 	}
 }
 
@@ -17,7 +17,7 @@ function initListeners(){
 	// START button
 	$('button#startPracticeBtn').click(function(){
 		console.log('should open the practice window');
-		chrome.extension.getBackgroundPage().notification.closeAll(); // close notification
+		chrome.extension.getBackgroundPage().notification.closeAll(); // close all notifications
 		chrome.extension.getBackgroundPage().practice.start();
 	});
 	

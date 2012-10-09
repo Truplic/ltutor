@@ -1,73 +1,155 @@
 ﻿$(function(){
-//var table = chrome.extension.getBackgroundPage().util.getPracticeTable();
-//var data = JSON.parse(window.location.hash.substr(1));
-initListeners();
+	//var table = chrome.extension.getBackgroundPage().util.getPracticeTable();
+	//var data = JSON.parse(window.location.hash.substr(1));
+	initListeners();
 });
 var start;
 function initListeners(){
 	"use strict"
-	$('button#checkBtn').click(function(){
+	var learningMode;
+	learningMode = chrome.extension.getBackgroundPage().settings.get('learningMode');
+	if(typeof learningMode !== 'undefined'){
+		$('#' + chrome.extension.getBackgroundPage().settings.get('learningMode')).removeClass('hidden'); // SHOW MODE
+	}else{
+		$('#tutorMode').removeClass('hidden'); // SHOW MODE
+		console.log('Warning! Unable to detect learningMode.');
+	}
+	
+	
+	$('div.practice-container')
+	// TUTOR LISTENERS
+	.on('click', 'button#checkBtn', function(){			// CHECK button
+		$(this).text('Next').attr('id', 'nextBtn');
 		practiceHandler.validate();
+		practiceHandler.showCorrect();
+		practiceHandler.setNextWord();
+	}).on('click', 'button#nextBtn', function(){		// NEXT button
+		$(this).text('Check').attr('id', 'checkBtn');
+		practiceHandler.insert();
+	}).on('keypress', '.editable-field', function(evt){	// ENTER key
+		if(evt.which === 13) {
+			$('button.ctrl-button').click();
+			return false;
+		}
+	}).on('click', '#addWordsBtn', function(){			// ADD WORDS button
+		chrome.tabs.create({url: chrome.extension.getURL('options.html')});
+	}) // FLASH CARDS LISTENERS
+	.on('click', 'div.face.front div.front-container', function(){			// FLIP FACE action
+        $(this).closest('.card').addClass('flipped');
+
+		practiceHandler.showCorrect();
+		practiceHandler.setNextWord();
+	}).on('click', '.validate-card-btn', function(evt){
+		var cardValidation = parseFloat($(this).attr('lt_data'));
+		$(this).closest('.card').removeClass('flipped');
+		practiceHandler.insert();
+		if (typeof cardValidation !== 'undefined'){
+			practiceHandler.updateDb(practiceHandler.getCurrentEntry().hits + cardValidation);
+		}
 	});
-
+	
 	start = new Date().getTime();
-	chrome.extension.getBackgroundPage().practice.getSessionData();
+	//chrome.extension.getBackgroundPage().practice.sendSessionData();  // TODO: Add id as the argument of the function
+	
+	
+	/*$('.flip').click(function(){
+        $(this).find('.card').addClass('flipped').mouseleave(function(){
+            $(this).removeClass('flipped');
+        });
+        return false;
+    });*/
 }
-chrome.extension.onMessage.addListener(function(request_array, sender, sendResponse) {
-	$('#tLoading').text('Data loaded in ' + (new Date().getTime() - start) + 'ms');
-	practiceHandler.data_array = request_array;
-	practiceHandler.insert();
 
-	console.log(request_array);
+chrome.extension.sendMessage({action: "sendSessionData"});
+chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
+	if(request.action === 'sessionDataArray'){
+		$('#tLoading').text('Session data loaded in ' + (new Date().getTime() - start) + 'ms');
+		practiceHandler.data_array = request.data;
+		practiceHandler.s_learnedTreshold = chrome.extension.getBackgroundPage().settings.get('learnedTreshold');
+		practiceHandler.insert();
+		
+		//console.log(request_array);
+	}
+
+
+	
 });
 
 practiceHandler = {
 	data_array: new Array(),
-	currentWord: 0,
+	n_currentWord: 0,
+	s_learnedTreshold: 0,
 	insert: function(){
-		if (practiceHandler.data_array.length) {
-			if(practiceHandler.currentWord !== practiceHandler.data_array.length){
-				$('#word').html('<h4>' + practiceHandler.data_array[practiceHandler.currentWord].word + '</h4>' );
-				$('#description').html(practiceHandler.data_array[practiceHandler.currentWord].description);
+		practiceHandler.clearAllEntries();
+		if (practiceHandler.data_array.length) {  // check if data is fetched
+			if(practiceHandler.n_currentWord !== practiceHandler.data_array.length){ 	// check if there are words to practice left
+				$('#practiceProgress').find('.bar').css('width', ((practiceHandler.n_currentWord/practiceHandler.data_array.length)*100)+'%');
+				$('.word').html(practiceHandler.data_array[practiceHandler.n_currentWord].word);
+				$('.description').html(practiceHandler.data_array[practiceHandler.n_currentWord].description);
 			}else{
-				$('div.container').children().remove();
+				$('div.practice-container').children().remove();
 				$('div.practice-container').append('<div class="alert alert-success">'
 					+ '<button type="button" class="close" data-dismiss="alert">&#215;</button><strong>Well done!! </strong> No more words to practice in this session. </div>');
 			}
 
 		} else {	// no fetched data
-			$('div.container').children().remove();
-			$('div.practice-container').append('<div class="alert alert-error">'
-				+ '<button type="button" class="close" data-dismiss="alert">&#215;</button><strong>Error! No words to practice! </strong>For some reason the session data has not been fetched. Please reload the page.</div>');
+			$('div.practice-container').children().remove();
+			$('div.practice-container').append('<div class="alert alert-info">'
+				+ '<button type="button" class="close" data-dismiss="alert">&#215;</button><strong>There are no words to practice! </strong>Please add some words to the dictionary. </div>');
+			$('div.practice-container').append('<button id="addWordsBtn" type="submit" class="btn btn btn-info noWords" >Add Words</button>');
 		}
 	},
 	validate: function(){
-		var myHits, orgTranslation_array, myTranslation;
-		n_hits = practiceHandler.data_array[practiceHandler.currentWord].hits;
-		orgTranslation_array = practiceHandler.data_array[practiceHandler.currentWord].translation.toLowerCase().latinize().split(/[ ;,.]+/); // split by comma, semicolon or space and 
-		myTranslation = $('#translation').text().toLowerCase().latinize().split(/[ ;,.]+/)[0]; // take only the first word
+		var myHits, orgTranslation_array, myTranslation, orgEntry;
 
-		console.log('validation for entered  word "'+myTranslation+'" started...');
-		if ($.inArray(myTranslation, orgTranslation_array) >= 0){ // is myTranslation in the array (returns -1 if not)
+		orgEntry = practiceHandler.getCurrentEntry();
+		n_hits = orgEntry.hits;
+		orgTranslation_array = orgEntry.translation.toLowerCase().latinize().split(/[ ;,.]+/); // split by comma, semicolon or space and 
+		myTranslation = $('.translation').text().toLowerCase().latinize().split(/[ ;,.]+/)[0]; // take only the first word
+
+		// console.log('validation for entered  word "'+myTranslation+'" started...');
+		if ($.inArray(myTranslation, orgTranslation_array) >= 0) { 	// is myTranslation in the array (returns -1 if not)
 			console.log('Correct!! Word found on place: ' + $.inArray(myTranslation, orgTranslation_array));
-			practiceHandler.updateDb(1);
+			$('#validationResult').text('Correct!');
+			practiceHandler.updateDb(++n_hits);
 		}else{
-			console.log('Wrong!');
-			practiceHandler.updateDb((n_hits - 1) >= 0 ? -1 : 0);	// avoid going to negative values
+			$('#validationResult').text('Wrong!');
+			practiceHandler.updateDb(--n_hits);
 		}
-		$('#translation').text('');
-		practiceHandler.updateCurrentWord();
-		practiceHandler.insert();
+		
 	},
-	updateDb: function(hit){
-		chrome.extension.getBackgroundPage().db.tx({name: 'validation_update', id: practiceHandler.data_array[practiceHandler.currentWord].id, validation: hit}, []);
+	showCorrect: function(){
+		// Display original entries
+		var orgEntry = practiceHandler.getCurrentEntry();
+		$('.word').html(orgEntry.word);
+		$('.translation').html(orgEntry.translation);
+		$('.description').html(orgEntry.description);
 	},
-	updateCurrentWord: function(){
-		practiceHandler.currentWord = Math.min(practiceHandler.data_array.length, practiceHandler.currentWord + 1);
+	clearAllEntries: function(){
+		$('.editable-field').text('');	// erase all input fields
+		$('.translation').focus();
+	},
+	updateDb: function(n_newHits){
+		var newState;
+		console.log('updateDb: '+n_newHits);
+		n_newHits = Math.max(0, Math.min(practiceHandler.s_learnedTreshold, n_newHits));  // bounding [0, learnedTreshold]; 
+		newState = (n_newHits >= practiceHandler.s_learnedTreshold) ? 'learned' : 'active';
+
+		console.log('State is: '+newState);
+		chrome.extension.getBackgroundPage().db.tx({name: 'validation_update', id: practiceHandler.data_array[practiceHandler.n_currentWord].id, hits: n_newHits, state: newState}, []);
+	},
+	setNextWord: function(){
+		practiceHandler.n_currentWord = Math.min(practiceHandler.data_array.length, practiceHandler.n_currentWord + 1);
+	},
+	getCurrentEntry: function(){
+		return practiceHandler.data_array[practiceHandler.n_currentWord];
 	}
 
 }
+
+////////////////////////////////////////////////////////////
 // Convert strings with accents http://goo.gl/LXM55
+////////////////////////////////////////////////////////////
 var Latinise={};Latinise.latin_map = {
 'á': 'a','ă': 'a','ắ': 'a','ặ': 'a','ằ': 'a','ẳ': 'a','ẵ': 'a','ǎ': 'a','â': 'a','ấ': 'a','ậ': 'a','ầ': 'a','ẩ': 'a','ẫ': 'a','ä': 'a','ǟ': 'a','ȧ': 'a','ǡ': 'a','ạ': 'a','ȁ': 'a',
 'à': 'a','ả': 'a','ȃ': 'a','ā': 'a','ą': 'a','ᶏ': 'a','ẚ': 'a','å': 'a','ǻ': 'a','ḁ': 'a','ⱥ': 'a','ã': 'a','ꜳ': 'aa','æ': 'ae','ǽ': 'ae','ǣ': 'ae','ꜵ': 'ao','ꜷ': 'au','ꜹ': 'av',

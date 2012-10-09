@@ -1,17 +1,27 @@
 div.editable{ position: relative; padding: 5px 0 5px 4px; }
 div.editable:hover { outline: 1px dashed #ddd; }
 div.editable:hover:after { content: "click to edit"; position: absolute; top: -1px; right: -1px; font-size: 12px; color: #9da0a4; padding: 0 10px 0 0; }
-div.editable:focus{ outline: 1px solid #0088CC; }
+div.editable:focus{ outline: 1px solid #0088CC; background-color: #fcfcfc; }
 div.editable:focus:after { content: ""; }
 button.close.delete-entry{ cursor: pointer; text-align: center; clear:both;}
 /*.edit-sucess{ outline: 1px solid green;}*/
 .edit-sucess:after { content: "Stored!"; position: absolute; top: -1px; right: -1px; font-size: 12px; font-weight: bold; color: green; padding: 0 10px 0 0; }
 
-div.progress  { width:150px; margin-bottom: 0px;  text-indent: -9999px; }
-table#dictTable tr td:first-child, table#dictTable tr td:nth-child(5){ width:150px; vertical-align: middle; text-align: center; }
-table#dictTable tr td:nth-child(5){ width:75px; }
+div.progress  { width:150px; margin-bottom: 0px; }
+table#toLearnTable tr td:nth-child(4), 
+table#toLearnTable tr td:nth-child(5), 
+/*table#toLearnTable tr td:nth-child(6), */
+table#learnedTable tr td:nth-child(4){ vertical-align: middle; text-align: center; }
+
+table#toLearnTable tr td:nth-child(4){ width:150px; }
+table#toLearnTable tr td:nth-child(5)/*,
+table#toLearnTable tr td:nth-child(6)*/{ width:100px; }
+table#learnedTable tr td:nth-child(4){ width:90px; }
+
+
+
 /*i.delete-entry{padding: 5px; background-color: red;}*/
-div[lt_dbLinked="word"]{font-style:italic;}
+div[lt_dbLinked="word"]{ }
 
 
 

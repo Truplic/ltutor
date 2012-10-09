@@ -7,7 +7,8 @@ var db = {
 	},
 
 	tx: function(r, callback){
-		var query, row;
+		var query, row, modified;
+		modified = new Date();
 		
 		switch (r.name){
 		case 'create_table':
@@ -30,36 +31,41 @@ var db = {
 			query = 'INSERT INTO lt_dbs ('
 						+	'word, translation, description, state, hits, tries, created, modified) '
 						+	'VALUES (?,?,?,?,?,?,?,?)';
-						
 			row = [r.word, r.translation, r.description, 'waiting', '0', '0', created, created];
 			
 			break;
 
 		case 'delete_entry':
-
 			query = 'DELETE FROM lt_dbs WHERE ID=? ';
 			row = [r.id];
 
 			break;
 		case 'edit_entry':
+			query = 'UPDATE lt_dbs SET ' + r.editedColumn + '=?, modified=? WHERE id =?';
+			row = [r.newValue, modified, r.id ];
 
-			query = 'UPDATE lt_dbs SET ' + r.editedColumn + '=? WHERE id =?';
-			row = [r.newValue, r.id ];
+			break;
+		case 'repeat_entry':
+			query = 'UPDATE lt_dbs SET state=?, hits=?, tries=?, modified=? WHERE id =?';
+			row = ["waiting", 0, 0, modified, r.id ];
 
 			break;
 		case 'validation_update':
-
-			query = 'UPDATE lt_dbs SET tries = tries + 1, hits = hits + '+ r.validation +'  WHERE id =?';
-			row = [r.id ];
+			query = 'UPDATE lt_dbs SET tries = tries + 1, hits = ?, state=?, modified=? WHERE id =?';
+			row = [r.hits, r.state, modified, r.id ];
 
 			break;
-		case 'get_all_entries':
+		/*case 'get_all_entries':
 
 			query = 'SELECT * FROM lt_dbs ';
 			row = [];
 			
-			break;
+			break;*/
+		case 'get_where':
+			query = 'SELECT * FROM lt_dbs WHERE '+ r.colName +' = "'+ r.colVal +'" ';
+			row = [];
 			
+			break;
 		case 'get_n_where':
 
 			query = 'SELECT * FROM lt_dbs WHERE '+ r.colName +' = "'+ r.colVal +'" LIMIT '+ r.limit +'';
