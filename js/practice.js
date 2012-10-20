@@ -105,7 +105,7 @@ practiceHandler = {
 		orgEntry = practiceHandler.getCurrentEntry();
 		n_hits = orgEntry.hits;
 		orgTranslation_array = orgEntry.translation.toLowerCase().latinize().split(/[ ;,.]+/); // split by comma, semicolon or space and 
-		myTranslation = $('.translation').text().toLowerCase().latinize().split(/[ ;,.]+/)[0]; // take only the first word
+		myTranslation = $('.translation').text().trim().toLowerCase().latinize().split(/[ ;,.]+/)[0]; // take only the first word TODO: is this the best solution for multiple words?
 
 		// console.log('validation for entered  word "'+myTranslation+'" started...');
 		if ($.inArray(myTranslation, orgTranslation_array) >= 0) { 	// is myTranslation in the array (returns -1 if not)

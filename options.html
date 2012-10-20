@@ -63,20 +63,29 @@
 							  <label class="control-label" for="word">Word*</label>
 							  <div class="controls">
 								<input id="word" class="span6" type="text" placeholder="word...">
+								<button id="playWordBtn" class="btn hidden" type="button" ><i href="#" class="icon-play" ></i></button>
 								<span class="help-inline" style="display:none">Please enter the word</span>
 							  </div>
 							</div>
+
 							<div class="control-group">
-							  <label class="control-label" for="translation">Ttranslation*</label>
-							  <div class="controls">
-								<textarea id="translation" class="span6" rows="2" placeholder="translation..." ></textarea>
+								<label class="control-label" for="translation">Ttranslation*</label>
+								<div class="controls">
+								<!-- <textarea id="translation" class="span6" rows="2" placeholder="translation..." ></textarea> -->
+									<div class="dropdown">
+									  <textarea class="dropdown-toggle span6" id="translation" data-toggle="dropdown" ></textarea> <!-- here the dropdown menu will be apended -->
+									</div>
+								</div>
+								
 								<span class="help-inline" style="display:none">Please enter the translation</span>
-							  </div>
 							</div>
+							  
+							  
 							<div class="control-group">
 							  <label class="control-label" for="description">Example</label>
 							  <div class="controls">
-								<div  id="description" class="editable" contenteditable="true"></div>
+								<div  id="description" class="editable" contenteditable="true">
+								</div>
 							  </div>
 							</div>
 							<div class="form-actions">
@@ -88,8 +97,8 @@
                 </div>
                 <div class="tab-pane" id="lB">
 					<ul class="nav nav-tabs">
-					  <li class="active"><a href="#dictToLearnContainer" data-toggle="tab">To Learn</a></li>
-					  <li><a href="#dictLearnedContainer" data-toggle="tab">Learned</a></li>
+					  <li class="active"><a href="#dictToLearnContainer" data-toggle="tab">To Learn (x)</a></li>
+					  <li><a href="#dictLearnedContainer" data-toggle="tab">Learned (y)</a></li>
 					</ul>
 					<div class="tab-content">
 						<div id="dictToLearnContainer" class="tab-pane active" >
@@ -100,7 +109,7 @@
 										<th>Translation</th>
 										<th>Description</th>
 										<th>%</th>
-										<th>Options</th>
+										<th>Actions</th>
 								   </tr>
 								</thead>
 							</table>
@@ -112,7 +121,7 @@
 										<th>Word</th>
 										<th>Translation</th>
 										<th>Description</th>
-										<th>Learn Again</th>
+										<th>Actions</th>
 								   </tr>
 								</thead>
 							</table>
@@ -166,9 +175,9 @@
             </div>
 		</div>
 			
-			
-			
-			
+<div id="ltPlayer" class="hidden">
+ <!-- Place to append player-->
+</div>			
 			
     <div class="container" hidden>
 
@@ -254,6 +263,7 @@
 	<script src="js/DataTables/js/jquery.dataTables.min.js"></script>
 	<script src="js/DataTables/js/DT_bootstrap.js"></script>
 	<script src="js/options.js"></script>
+	<script src="js/gtranslate.js"></script>
 
   </body>
 </html>
