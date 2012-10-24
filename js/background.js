@@ -11,26 +11,25 @@ $(function(){
 });
 
 function init(){
+	// DEFAULT SETTINGS Initialization
+	var defaultSettings = ls.getSettings();
+	if(typeof defaultSettings.sessionFreq == 'undefined' || typeof defaultSettings.learnedTreshold == 'undefined' || typeof defaultSettings.wordsPerSession == 'undefined' || typeof defaultSettings.learningMode == 'undefined'){ 
+		ls.setSettings('settings', {sessionFreq: 120, learnedTreshold: 5, wordsPerSession: 3, learningMode: 'tutorMode', activeTable:''});
+	} else {
+		console.log('Settings already exist: '+ JSON.stringify(defaultSettings));
+	}
+	// TIMER Initialization
+	if(defaultSettings.learnedTreshold !== '0'){ // 0min means no repetition
+		/*var t=setInterval(function() {
+			notification.show();
+		
+		}, settings.get('sessionFreq') * 60 * 1000);*/
+		
+		setTimeout(function() {
+			notification.show();
+		},0.5 * 1000);
+	}
 
-	/*var t=setInterval(function() {
-		notification.show();
-	
-	}, settings.set('sessionFreq') * 60 * 1000);*/
-	
-	setTimeout(function() {
-		notification.show();
-	},0.5 * 1000);
-
-	// SETTINGS Initialization
-	if(settings.get('sessionFreq') == null)
-		settings.set('sessionFreq', 120);
-	if(settings.get('learnedTreshold') == null)	
-		settings.set('learnedTreshold', 5);
-	if(settings.get('wordsPerSession') == null)
-		settings.set('wordsPerSession', 3);
-	if(settings.get('learningMode') == null)
-		settings.set('learningMode', 'tutorMode');
-	
 }
 var notification = {
 	window:'',
@@ -98,13 +97,14 @@ var practice = {
 		}
 	},
 	fetchSessionData: function(callback){
-		var nWords = settings.get('wordsPerSession');
+		var nWords = ls.getSettings().wordsPerSession;
+		console.log('Should be fetched ' + nWords);
 		db.tx({name: 'get_n_where', colName: 'state', colVal: 'active', limit: nWords}, function(tx, rs){
 			var nActiveRows;
 			
 			practice.sessionData = []; // clear the array
 			nActiveRows = rs.rows.length;
-			nWords = settings.get('wordsPerSession');
+			// nWords = ls.getSettings('wordsPerSession');
 			
 			for (var i = 0; i < nActiveRows; i++) {
 				practice.sessionData.push( rs.rows.item(i)); 								// put new (state: active) element in the array
@@ -127,7 +127,7 @@ var practice = {
 
 					}
 					callback();
-					console.log('fetchSessionData: There are ' + nWords + ' fetched  words to practice');
+					console.log('fetchSessionData: There are ' + rs.rows.length + ' fetched  words to practice');
 				}); 
 			}
 		});
@@ -157,35 +157,7 @@ chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
 });
 
 
-var settings = {
-	set: function(key, value){
-		try {
-		  window.localStorage.removeItem(key);
-		  window.localStorage.setItem(key, value);
-		}catch(e) {
-		  console.log("Error inside setItem");
-		  console.log(e);
-		}
-	},
-	get: function(key) {
-		var value;
-		try {
-		  value = window.localStorage.getItem(key);
-		}catch(e) {
-		  console.log("Error inside getItem() for key:" + key);
-		  console.log(e);
-		  value = "null";
-		}
-		return value;
-	}/*,
 
-	clearStrg: function(){ 
-		console.log('about to clear local storage');
-		window.localStorage.clear();
-		console.log('cleared');
-	}*/
-  
-}
 
 
 

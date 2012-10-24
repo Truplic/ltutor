@@ -1,15 +1,20 @@
 ﻿$(function(){
-	//var table = chrome.extension.getBackgroundPage().util.getPracticeTable();
+	//var table = getBg().util.getPracticeTable();
 	//var data = JSON.parse(window.location.hash.substr(1));
 	initListeners();
 });
+
+function getBg(){
+	return chrome.extension.getBackgroundPage();
+}
+
 var start;
 function initListeners(){
 	"use strict"
 	var learningMode;
-	learningMode = chrome.extension.getBackgroundPage().settings.get('learningMode');
+	learningMode = getBg().ls.getSettings().learningMode;
 	if(typeof learningMode !== 'undefined'){
-		$('#' + chrome.extension.getBackgroundPage().settings.get('learningMode')).removeClass('hidden'); // SHOW MODE
+		$('#' + getBg().ls.getSettings().learningMode).removeClass('hidden'); // SHOW MODE
 	}else{
 		$('#tutorMode').removeClass('hidden'); // SHOW MODE
 		console.log('Warning! Unable to detect learningMode.');
@@ -49,7 +54,7 @@ function initListeners(){
 	});
 	
 	start = new Date().getTime();
-	//chrome.extension.getBackgroundPage().practice.sendSessionData();  // TODO: Add id as the argument of the function
+	//getBg().practice.sendSessionData();  // TODO: Add id as the argument of the function
 	
 	
 	/*$('.flip').click(function(){
@@ -65,7 +70,7 @@ chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
 	if(request.action === 'sessionDataArray'){
 		$('#tLoading').text('Session data loaded in ' + (new Date().getTime() - start) + 'ms');
 		practiceHandler.data_array = request.data;
-		practiceHandler.s_learnedTreshold = chrome.extension.getBackgroundPage().settings.get('learnedTreshold');
+		practiceHandler.s_learnedTreshold = getBg().ls.getSettings().learnedTreshold;
 		practiceHandler.insert();
 		
 		//console.log(request_array);
@@ -136,7 +141,7 @@ practiceHandler = {
 		newState = (n_newHits >= practiceHandler.s_learnedTreshold) ? 'learned' : 'active';
 
 		console.log('State is: '+newState);
-		chrome.extension.getBackgroundPage().db.tx({name: 'validation_update', id: practiceHandler.data_array[practiceHandler.n_currentWord].id, hits: n_newHits, state: newState}, []);
+		getBg().db.tx({name: 'validation_update', id: practiceHandler.data_array[practiceHandler.n_currentWord].id, hits: n_newHits, state: newState}, []);
 	},
 	setNextWord: function(){
 		practiceHandler.n_currentWord = Math.min(practiceHandler.data_array.length, practiceHandler.n_currentWord + 1);

@@ -84,8 +84,7 @@
 							<div class="control-group">
 							  <label class="control-label" for="description">Example</label>
 							  <div class="controls">
-								<div  id="description" class="editable" contenteditable="true">
-								</div>
+								<textarea  id="description" class="editable span6" ></textarea>
 							  </div>
 							</div>
 							<div class="form-actions">
@@ -97,8 +96,8 @@
                 </div>
                 <div class="tab-pane" id="lB">
 					<ul class="nav nav-tabs">
-					  <li class="active"><a href="#dictToLearnContainer" data-toggle="tab">To Learn (x)</a></li>
-					  <li><a href="#dictLearnedContainer" data-toggle="tab">Learned (y)</a></li>
+					  <li class="active"><a href="#dictToLearnContainer" data-toggle="tab">To Learn (<span id="nToLearnInd"></span>)</a></li>
+					  <li><a href="#dictLearnedContainer" data-toggle="tab">Learned (<span id="nLearnInd"></span>)</a></li>
 					</ul>
 					<div class="tab-content">
 						<div id="dictToLearnContainer" class="tab-pane active" >
@@ -129,43 +128,103 @@
 					</div>
                 </div>
                 <div class="tab-pane" id="lC">
-					<form class="form-horizontal">
+					<form id="settingsContainer" class="form-horizontal">
 						<div class="control-group">
-						  <label class="control-label" for="tutorMode">Learning Mode</label>
+						  <label class="control-label" for="tutorMode">Lesson Mode</label>
 						  <div class="controls">
 							<div class="btn-group" data-toggle="buttons-radio">
-							  <button id="tutorMode" type="button" class="btn learningMode" data-toggle="button">Language Tutor</button>
-							  <button id="cardsMode" type="button" class="btn learningMode" data-toggle="button">Flash Cards</button>
+							  <button id="tutorMode" type="button" class="btn learningMode" data-toggle="button" data-lskey="learningMode" data-lsvalue="tutorMode">Language Tutor</button>
+							  <button id="cardsMode" type="button" class="btn learningMode" data-toggle="button" data-lskey="learningMode" data-lsvalue="cardsMode">Flash Cards</button>
 							</div>
-							<span class="help-inline"><i href="#" class="icon-question-sign" ></i></span>
+							<span class="help-inline"><i href="#" class="icon-question-sign" rel="tooltip" data-trigger="hover" title="Expl for Learning Mode"></i></span>
 						  </div>
 						</div>
 						<div class="control-group">
 						  <label class="control-label" for="sessionFreq">Repeat Every</label>
 						  <div class="controls">
 							<div class="input-append">
-							  <input class="span2" id="sessionFreq" size="16" type="text"><span class="add-on">min</span>
+							  <input class="span2 numerical-uint" id="sessionFreq" size="16" type="text" data-lskey="sessionFreq"><span class="add-on">min</span>
 							</div>
-							<span class="help-inline"><i href="#" class="icon-question-sign" ></i></span>
+							<span class="help-inline"><i href="#" class="icon-question-sign" rel="tooltip" data-trigger="hover" title="0 for non repeating"></i></span>
 						  </div>
 						</div>
 						<div class="control-group">
 						  <label class="control-label" for="learnedTreshold">Archive Word After</label>
 						  <div class="controls">
 							<div class="input-append">
-							  <input class="span2" id="learnedTreshold" size="16" type="text"><span class="add-on">hits</span>
+							  <input class="span2 numerical-uint" id="learnedTreshold" size="16" type="text" data-lskey="learnedTreshold" ><span class="add-on">hits</span>
 							</div>
-							<span class="help-inline"><i href="#" class="icon-question-sign" ></i></span>
+							<span class="help-inline"><i href="#" class="icon-question-sign" rel="tooltip" data-trigger="hover" title="Word will be moved to 'learned' table " ></i></span>
 						  </div>
 						</div>
 						<div class="control-group">
 						  <label class="control-label" for="wordsPerSession">Words Per Session</label>
 						  <div class="controls">
-							<input class="span2" id="wordsPerSession" size="16" type="text">
-							<span class="help-inline"><i href="#" class="icon-question-sign" ></i></span>
+							<input class="span2 numerical-uint" id="wordsPerSession" size="16" type="text" data-lskey="wordsPerSession">
+							<span class="help-inline"><i href="#" class="icon-question-sign" rel="tooltip" data-trigger="hover" title="Words per session" ></i></span>
 						  </div>
 						</div>
+						<div class="control-group">
+						  <label class="control-label" for="wordsPerSession">Dictionaries</label>
+						  <div class="controls">
+							<div id="addTableModal" class="modal hide">
+							  <div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+								<h3>Create New Dictionary</h3>
+							  </div>
+							  <div class="modal-body">
+								<form class="form-horizontal">
+								  <div class="control-group">
+									<label class="control-label" for="fromLanguage">I Know</label>
+									<div class="controls">
+										<select id="fromLanguage">
+										  <option>1</option>
+										  <option>2</option>
+										  <option>3</option>
+										  <option>4</option>
+										  <option>5</option>
+										</select>
+									</div>
+								  </div>
+								  <div class="control-group">
+									<label class="control-label" for="toLanguage">I Want To Learn</label>
+									<div class="controls">
+										<select id="toLanguage">
+										  <option>1</option>
+										  <option>2</option>
+										  <option>3</option>
+										  <option>4</option>
+										  <option>5</option>
+										</select>
+									</div>
+								  </div>
+								</form>
+							  </div>
+							  <div class="modal-footer">
+								<a href="#" class="btn" data-dismiss="modal">Close</a>
+								<a href="#" id="createNewTableBtn" class="btn btn-primary">Create</a>
+							  </div>
+							</div>
+							<div class="btn-group">
+								<button class="add-table-btn btn" type="button" data-toggle="modal" ><i href="#" class="icon-plus"></i></button>
+								<button class="dw-table-btn btn" type="button" data-toggle="modal" ><i href="#" class="icon-download-alt"></i></button>
+							</div>
+							<table id='dictionariesTable' class="table table-striped table-bordered">
+							  <thead>
+								<tr>
+								  <th>Activate</th>
+								  <th>From</th>
+								  <th>To</th>
+								  <th>Action</th>
+								</tr>
+							  </thead>
+							  <tbody>
 
+							  </tbody>
+							</table>
+						  
+						  </div>
+						</div>
 					</form>
                 </div>
                 <div class="tab-pane" id="lD">
