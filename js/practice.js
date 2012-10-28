@@ -12,14 +12,17 @@ var start;
 function initListeners(){
 	"use strict"
 	var learningMode;
-	learningMode = getBg().ls.getSettings().learningMode;
+	learningMode = getBg().ls.get('learningMode');
 	if(typeof learningMode !== 'undefined'){
-		$('#' + getBg().ls.getSettings().learningMode).removeClass('hidden'); // SHOW MODE
+		$('#' + getBg().ls.get('learningMode') ).removeClass('hidden'); // SHOW MODE
 	}else{
 		$('#tutorMode').removeClass('hidden'); // SHOW MODE
 		console.log('Warning! Unable to detect learningMode.');
 	}
 	
+	if (googleTranslate.isAudioPlayable()){
+		$('#playWordBtn').removeClass('hidden');
+	}
 	
 	$('div.practice-container')
 	// TUTOR LISTENERS
@@ -27,10 +30,12 @@ function initListeners(){
 		$(this).text('Next').attr('id', 'nextBtn');
 		practiceHandler.validate();
 		practiceHandler.showCorrect();
-		practiceHandler.setNextWord();
+		
 	}).on('click', 'button#nextBtn', function(){		// NEXT button
 		$(this).text('Check').attr('id', 'checkBtn');
+		practiceHandler.setNextWord();
 		practiceHandler.insert();
+		
 	}).on('keypress', '.editable-field', function(evt){	// ENTER key
 		if(evt.which === 13) {
 			$('button.ctrl-button').click();
@@ -41,16 +46,20 @@ function initListeners(){
 	}) // FLASH CARDS LISTENERS
 	.on('click', 'div.face.front div.front-container', function(){			// FLIP FACE action
         $(this).closest('.card').addClass('flipped');
-
 		practiceHandler.showCorrect();
-		practiceHandler.setNextWord();
+
 	}).on('click', '.validate-card-btn', function(evt){
 		var cardValidation = parseFloat($(this).attr('lt_data'));
 		$(this).closest('.card').removeClass('flipped');
-		practiceHandler.insert();
+		
 		if (typeof cardValidation !== 'undefined'){
 			practiceHandler.updateDb(practiceHandler.getCurrentEntry().hits + cardValidation);
 		}
+		practiceHandler.setNextWord();
+		practiceHandler.insert();
+				
+	}).on('click', '#playWordBtn', function(){
+		practiceHandler.playAudio();
 	});
 	
 	start = new Date().getTime();
@@ -70,14 +79,11 @@ chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
 	if(request.action === 'sessionDataArray'){
 		$('#tLoading').text('Session data loaded in ' + (new Date().getTime() - start) + 'ms');
 		practiceHandler.data_array = request.data;
-		practiceHandler.s_learnedTreshold = getBg().ls.getSettings().learnedTreshold;
+		practiceHandler.s_learnedTreshold = getBg().ls.get('learnedTreshold');
 		practiceHandler.insert();
 		
 		//console.log(request_array);
 	}
-
-
-	
 });
 
 practiceHandler = {
@@ -87,10 +93,11 @@ practiceHandler = {
 	insert: function(){
 		practiceHandler.clearAllEntries();
 		if (practiceHandler.data_array.length) {  // check if data is fetched
-			if(practiceHandler.n_currentWord !== practiceHandler.data_array.length){ 	// check if there are words to practice left
+			if(practiceHandler.n_currentWord < practiceHandler.data_array.length){ 	// check if there are words to practice left
 				$('#practiceProgress').find('.bar').css('width', ((practiceHandler.n_currentWord/practiceHandler.data_array.length)*100)+'%');
 				$('.word').html(practiceHandler.data_array[practiceHandler.n_currentWord].word);
 				$('.description').html(practiceHandler.data_array[practiceHandler.n_currentWord].description);
+				practiceHandler.playAudio();
 			}else{
 				$('div.practice-container').children().remove();
 				$('div.practice-container').append('<div class="alert alert-success">'
@@ -114,11 +121,11 @@ practiceHandler = {
 
 		// console.log('validation for entered  word "'+myTranslation+'" started...');
 		if ($.inArray(myTranslation, orgTranslation_array) >= 0) { 	// is myTranslation in the array (returns -1 if not)
-			console.log('Correct!! Word found on place: ' + $.inArray(myTranslation, orgTranslation_array));
+			console.log('[Info] Correct!! Word found on place: ' + $.inArray(myTranslation, orgTranslation_array));
 			$('#validationResult').text('Correct!');
 			practiceHandler.updateDb(++n_hits);
 		}else{
-			$('#validationResult').text('Wrong!');
+			$('#validationResult').text('[Info] Wrong!');
 			practiceHandler.updateDb(--n_hits);
 		}
 		
@@ -144,10 +151,13 @@ practiceHandler = {
 		getBg().db.tx({name: 'validation_update', id: practiceHandler.data_array[practiceHandler.n_currentWord].id, hits: n_newHits, state: newState}, []);
 	},
 	setNextWord: function(){
-		practiceHandler.n_currentWord = Math.min(practiceHandler.data_array.length, practiceHandler.n_currentWord + 1);
+		practiceHandler.n_currentWord ++;
 	},
 	getCurrentEntry: function(){
 		return practiceHandler.data_array[practiceHandler.n_currentWord];
+	},
+	playAudio: function(){
+		googleTranslate.playWord(practiceHandler.getCurrentEntry().word);
 	}
 
 }

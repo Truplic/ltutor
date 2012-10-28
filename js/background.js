@@ -11,22 +11,22 @@ $(function(){
 });
 
 function init(){
-	// DEFAULT SETTINGS Initialization
-	var defaultSettings = ls.getSettings();
-	if(typeof defaultSettings.sessionFreq == 'undefined' || typeof defaultSettings.learnedTreshold == 'undefined' || typeof defaultSettings.wordsPerSession == 'undefined' || typeof defaultSettings.learningMode == 'undefined'){ 
-		ls.setSettings('settings', {sessionFreq: 120, learnedTreshold: 5, wordsPerSession: 3, learningMode: 'tutorMode', activeTable:''});
-	} else {
-		console.log('Settings already exist: '+ JSON.stringify(defaultSettings));
-	}
+	var tableName = ls.get('activeTable').name;
 	// TIMER Initialization
-	if(defaultSettings.learnedTreshold !== '0'){ // 0min means no repetition
+	if(ls.get('learnedTreshold') !== '0'){ // 0min means no repetition
 		/*var t=setInterval(function() {
 			notification.show();
 		
 		}, settings.get('sessionFreq') * 60 * 1000);*/
 		
 		setTimeout(function() {
-			notification.show();
+			if (typeof tableName !== 'undefined' && tableName !== "" && tableName !== null){
+				notification.show();
+				console.log('[Info] Should show notification to practice from active table ' + tableName);
+			} else {
+				chrome.tabs.create({url: chrome.extension.getURL('options.html')});
+				console.log('[Info] There is no active table: '+ tableName + '. Opening options page to create one.');
+			}
 		},0.5 * 1000);
 	}
 
@@ -97,14 +97,13 @@ var practice = {
 		}
 	},
 	fetchSessionData: function(callback){
-		var nWords = ls.getSettings().wordsPerSession;
-		console.log('Should be fetched ' + nWords);
+		var nWords = ls.get('wordsPerSession');
+		console.log('[Info] Should be fetched ' + nWords + ' words.');
 		db.tx({name: 'get_n_where', colName: 'state', colVal: 'active', limit: nWords}, function(tx, rs){
 			var nActiveRows;
 			
 			practice.sessionData = []; // clear the array
 			nActiveRows = rs.rows.length;
-			// nWords = ls.getSettings('wordsPerSession');
 			
 			for (var i = 0; i < nActiveRows; i++) {
 				practice.sessionData.push( rs.rows.item(i)); 								// put new (state: active) element in the array
@@ -112,7 +111,7 @@ var practice = {
 
 			if (nActiveRows === nWords){
 				callback();
-				console.log('fetchSessionData: There are ' + nWords + ' fetched  words to practice');
+				console.log('[Info] There are ' + rs.rows.length + ' fetched  words to practice with state ACTIVE');
 			} else {
 				db.tx({name: 'get_n_where', colName: 'state', colVal: 'waiting', limit: (nWords - nActiveRows)}, function(tx, rs){ 
 					// callback for 'waiting' rows 
@@ -127,7 +126,7 @@ var practice = {
 
 					}
 					callback();
-					console.log('fetchSessionData: There are ' + rs.rows.length + ' fetched  words to practice');
+					console.log('[Info] There are ' + rs.rows.length + ' fetched  words to practice with state WAITING');
 				}); 
 			}
 		});
@@ -151,12 +150,19 @@ var practice = {
 
 chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
 	if(request.action === 'sendSessionData'){  // Called from practice page in order to send the data
-		console.log(request.action);
+		//console.log(request.action);
 		practice.sendSessionData();
 	}
 });
 
 
+var util = {
+	isOnline: function(){
+		"use strict"
+		return navigator.onLine;
+	}
+
+}
 
 
 

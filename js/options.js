@@ -1,7 +1,9 @@
 $(function(){
 	loadDefaultSettings();
-	loadTables();
-	loadDictEntries();
+	dTable.init();  // init data tables
+	loadDictionaries();
+	initModal();
+	//loadDictEntries();  // will be called from loadDictionaries() once the table is selected
 
 	initListeners();
 });
@@ -36,18 +38,31 @@ function initListeners(){
 			$(this).closest('div.add-word-form').find('.help-inline:visible:first').siblings('input, textarea').focus();
 		}
 
-	}).on('change', '#word', function(){
-		var word;
+	}).on('keyup', '#word', function(){
+		var word, activeTable;
 		word = $(this).val();
-		if (isOnline() && word.length){
+		activeTable = getBg().ls.get('activeTable');
+		if (word.length && googleTranslate.isAudioPlayable()){
 			$('button#playWordBtn').removeClass('hidden');
-			googleTranslate.translationRequest('en', 'hr', word, newWordForm.handleTranslation, []);
+		}else{
+			$('button#playWordBtn').addClass('hidden');
+		}
+	
+	}).on('change', '#word', function(){
+		var word, activeTable;
+		word = $(this).val();
+		activeTable = getBg().ls.get('activeTable');
+		if (word.length){
+			console.log('[Info] Sending request for translation: ' + activeTable.iSpeak + ' | ' + activeTable.iLearn);
+			googleTranslate.translationRequest(activeTable.iLearn, activeTable.iSpeak, word, newWordForm.handleTranslation, []);
 		}
 	
 	}).on('click', '#playWordBtn', function(){
-		playWord($('#word').val());
+		googleTranslate.playWord($('#word').val());
 	
 	}).on('click', '.addword-dropdown', function(e){
+		//console.log(e.which);
+		//if (e.type === 'keyup' && e.which != 13) return;
 		var wordToAdd, translationField, translationContent, translationContent_array, lastChar, caretStart, caretEnd;
 		wordToAdd = $(this).text().trim().toLowerCase();
 		translationField = $('#translation');
@@ -199,7 +214,7 @@ function initListeners(){
 		
 	}).on('click', 'button.play-btn', function(){			// PLAY button
 		var txt = $(this).closest('tr.table-row').find('div.[lt_dblinked="word"]').text();
-		playWord(txt);
+		googleTranslate.playWord(txt);
 	});
 	
 	///////////////////////////////////////
@@ -209,26 +224,30 @@ function initListeners(){
 	}).on('change', '.numerical-uint', function(){
 		var id;
 		if ($(this).val()===''){  // no number 
-			$(this).val(getBg().ls.getSettings()[$(this).attr('data-lskey')]);
+			$(this).val(getBg().ls.get([$(this).attr('data-lskey')]));
 			console.log('value restored from ls');
 		} else {
-			getBg().ls.setSettings($(this).attr('data-lskey'), $(this).val());
+			getBg().ls.set($(this).attr('data-lskey'), $(this).val());
 			console.log($(this).attr('data-lskey')+' changed to '+$(this).val());
 		}
 	}).on('click', 'button.learningMode', function(){
-		getBg().ls.setSettings($(this).attr('data-lskey'), $(this).attr('data-lsvalue'));
-		console.log($(this).attr('data-lskey') +' changed to ' + $(this).attr('data-lsvalue'));
+		getBg().ls.set($(this).attr('data-lskey'), $(this).attr('data-lsvalue'));
+		console.log('[Info]' + $(this).attr('data-lskey') +' changed to ' + $(this).attr('data-lsvalue'));
+	}).on('click', 'button.lt-toggle-btn', function(){
+		getBg().ls.set($(this).attr('data-lskey'), $(this).attr('data-lsvalue'));
+		console.log('[Info]' + $(this).attr('data-lskey') +' changed to ' + $(this).attr('data-lsvalue'));
 	}).on('click', '.add-table-btn', function(){
 		$('#addTableModal').modal();
 	}).on('click', '#createNewTableBtn', function(){
 		var modal, myTableName;
 		modal = $(this).closest('#addTableModal');
-
-		myTableName =  't' + modal.find('#fromLanguage').val() + '_'+ modal.find('#toLanguage').val() +'_' + Math.random().toString(36).substr(2, 9);
-		console.log('new table ' + modal.find('#fromLanguage').val() + '_'+ modal.find('#toLanguage').val() +'_' + Math.random().toString(36).substr(2, 9));
+		
+		myTableName =  modal.find('#nativeLang').val() + '_'+ modal.find('#toLearnLang').val() +'_' + Math.random().toString(36).substr(2, 9);
+		console.log('[Info] About to create new table with name "' +myTableName +'"');
 		getBg().db.tx({ 	name: 'create_table', 
 							tableName: myTableName
 						}, dTable.dicts.renderRow({name: myTableName})); 
+		dTable.dicts.selectActive();
 		$('#addTableModal').modal('hide');
 	}).on('click', '.del-table-btn', function(e){
 		$('div.popover').fadeOut().remove();
@@ -241,20 +260,33 @@ function initListeners(){
 					+	  '<button type="button" class="del-table-popup-btn btn btn-primary btn-danger span6" lt_dblinked="'+$(this).closest('tr').attr('lt_dblinked')+'">Yes</button>'
 					+	  '<button type="button" class="cancel-popup-btn btn span6">Cancel</button>'
 					+	'</div>'},
-			title: function(){ return 'Delete dictionary <strong>'+ $(this).closest('tr.table-row').find('div.[lt_dblinked="word"]').text() +'</strong>?'}
+			title: function(){ return 'Delete dictionary <strong>'+ $(this).closest('tr.table-row').find('.table-name').text() +'</strong>?'}
 		})
 		$(this).popover('show');
 		e.stopPropagation();
 	}).on('click', '.activate-table-radio', function(){
-		getBg().ls.setSettings($(this).attr('data-lskey'), $(this).val());
+		var currTable, tableName_array;
+		$('#dictionariesTable').find('tr.table-row').removeClass('info');
+		// make row highlighted
+		$(this).closest('tr.table-row').addClass('info');
+		currTable = getBg().ls.get($(this).attr('data-lskey'));
+		// store active table
+		currTable.name = $(this).val();
+		tableName_array = currTable.name.split(/[_]+/);
+		currTable.iSpeak = tableName_array[0];
+		currTable.iLearn = tableName_array[1];
+		currTable.hasAudio = googleTranslate.getAttrValue(currTable.iLearn, 'hasAudio');
+		getBg().ls.set($(this).attr('data-lskey'), currTable);
+		// set new word placeholders
+		$('input#word').attr('placeholder', googleTranslate.getAttrValue(currTable.iLearn, 'name') + '...');
+		$('textarea#translation').attr('placeholder', googleTranslate.getAttrValue(currTable.iSpeak, 'name') + '...');
+		newWordForm.resetFields();
 		loadDictEntries();
-		console.log('Set active table: ' + $(this).val());
+		console.log('[Info] Clicked radio to set active table: ' + $(this).val());
 	});
 
 	$('[rel="tooltip"]').tooltip();
 	//-----------------------------------------
-	
-	
 	
 	///////////////////////////////////////
 	// Remove popovers when user click elsewhere
@@ -264,17 +296,32 @@ function initListeners(){
 	});
 	//-----------------------------------------
 	
-	///////////////////////////////////////
-	// Initialize DATA TABLES
-	dTable.init();
-	//-----------------------------------------
+	updateConnectionStatus();  // first init
+	$(window).on('online', function(e){
+		updateConnectionStatus(true);
+	}).on('offline', function(e){
+		updateConnectionStatus(false);
+	});
+}
+
+function updateConnectionStatus(){
+	"use strict"
+	if (getBg().util.isOnline()){	// if online
+		console.log('[Info] We are online.');
+		$('.connection-dependent').prop("disabled", false);
+	} else {
+		console.log('[Info] We are offline.');
+		$('.connection-dependent').prop("disabled", true);
+	}
 }
 
 function getBg(){
+	"use strict"
 	return chrome.extension.getBackgroundPage();
 }
 
 function updateTabName(table){
+	"use strict"
 	switch (table){
 	case 'toLearn':
 		$("#nToLearnInd").text(dTable.toLearn.length());
@@ -286,11 +333,6 @@ function updateTabName(table){
 		$("#nToLearnInd").text(dTable.toLearn.length());
 		$("#nLearnInd").text(dTable.learned.length());
 	}
-}
-
-// check if we are online
-function isOnline(){
-	return navigator.onLine;
 }
 
 var newWordForm = {
@@ -309,6 +351,7 @@ var newWordForm = {
 	},
 	resetFields: function(){
 		$('div.add-word-form').find('textarea, input, .editable').val('').text('');				// reset values
+		$('#playWordBtn').addClass('hidden');
 	},
 	indicateSucess: function(){
 		//$('#sucessAlert').fadeIn("slow").fadeOut('slow');
@@ -319,9 +362,14 @@ var newWordForm = {
 		var gTranslation, gDescription_array, dropdownMenuStream;
 		//console.log(resp);
 		$('#translation').closest('div.dropdown').find('ul.dropdown-menu').remove();  // first remove the existing dropdown translations
-		if (typeof resp.sentences !== 'undefined'){	// Translation handling
+		if (typeof resp.sentences !== 'undefined' ){	// Translation handling
 			gTranslation = resp.sentences[0].trans;
-			$('#translation').val(gTranslation);
+			if (resp.sentences[0].trans.toLowerCase() !== $('#word').val().toLowerCase()){  // if word not equal to orig.
+				$('#translation').val(gTranslation);
+			} else {
+				$('#translation').val('');
+				console.log('[Info] Same translation as original word.');
+			}
 		}
 		
 		if (typeof resp.dict !== 'undefined'){		// word alternative translations handling
@@ -335,21 +383,11 @@ var newWordForm = {
 				});
 			});
 			dropdownMenuStream += '</ul>'
-			console.log(dropdownMenuStream);
+			// console.log(dropdownMenuStream);
 			$('#translation').closest('div.dropdown').append(dropdownMenuStream);
 		}
 	}
 
-}
-
-function playWord(word){
-	$('#ltPlayer').children().remove();
-	$('#ltPlayer').append(
-		'<audio controls="controls">'
-		+	'<source src='+ googleTranslate.getGoogleUrl("audio", 'en', [], word ) +' type="audio/mpeg">'
-		+	'Your browser does not support the audio element.'
-		+'</audio>'	);
-	$('audio').trigger('play');
 }
 
 function loadDictEntries(){
@@ -368,18 +406,25 @@ function loadDictEntries(){
 }
 
 function loadDefaultSettings(){
-	var mySettings = getBg().ls.getSettings();
-	$('#' + mySettings.learningMode).button('toggle');
-	$('#sessionFreq').val(mySettings.sessionFreq);
-	$('#learnedTreshold').val(mySettings.learnedTreshold);
-	$('#wordsPerSession').val(mySettings.wordsPerSession);
+	"use strict"
+	$('#' + getBg().ls.get('learningMode')).button('toggle');
+	$('#sessionFreq').val(getBg().ls.get('sessionFreq'));
+	$('#learnedTreshold').val(getBg().ls.get('learnedTreshold'));
+	$('#wordsPerSession').val(getBg().ls.get('wordsPerSession'));
+	$('#autoPlay').val(getBg().ls.get('autoPlay'));
 }
 
-function loadTables(){
+function loadDictionaries(){
 	"use strict"
 	getBg().db.tx({name: 'get_all_tables'}, dTable.dicts.load);
 }
-
+function initModal(){
+	"use strict"
+	for (var i = 0; i< googleTranslate.languageList.length; i++){
+		$('#nativeLang, #toLearnLang').append('<option value="'+ googleTranslate.languageList[i].abbr +'">'+ googleTranslate.languageList[i].name +'</option>');
+	}
+	
+}
 
 var toLearnDT, learnedDT, dictsDT; 
 var dTable = {
@@ -447,7 +492,7 @@ var dTable = {
 					dTable.toLearn.renderRow(rs.rows.item(i));
 				}
 			} else{
-				console.log('Warning!: There are no words with status "toLearn" in this table');
+				console.log('[Warning] There are no words with status "toLearn" in this table');
 			}
 			updateTabName('toLearn');
 		},
@@ -461,16 +506,18 @@ var dTable = {
 		},
 		renderRow: function(row) {
 			"use strict"
-			var hits, cRowElement, a, hideAttr;
+			var hits, cRowElement, a, hideAttr, audioBtnHtml;
 			
 			// if the word-state is not active, dont render progresbar
 			if (row.state === "active"){
 				hideAttr = '';
-				hits = parseFloat(row.hits) / parseFloat(getBg().ls.getSettings().learnedTreshold) * 100; 
+				hits = parseFloat(row.hits) / parseFloat(getBg().ls.get('learnedTreshold')) * 100; 
 			}else{
 				hideAttr = 'hidden';
 				hits = -1;
 			}
+			
+			audioBtnHtml = googleTranslate.getAttrValue(getBg().ls.get('activeTable').iLearn, 'hasAudio') ? '<button class="btn play-btn connection-dependent" type="button" '+ (getBg().util.isOnline() ? '' :  'disabled')+'><i href="#" class="icon-play" ></i></button>' : '';	
 
 			// Add row to data table
 			a = toLearnDT.fnAddData( [
@@ -482,7 +529,7 @@ var dTable = {
 			+	  '<div class="bar" style="width:'+hits+'%;"></div>'
 			+	'</div>',
 				'<div class="btn-group">'
-			+		'<button class="btn play-btn" type="button" '+ (isOnline() ? "" : "disabled='disabled'") +'><i href="#" class="icon-play" ></i></button>'
+			+		audioBtnHtml 
 			+		'<button class="btn archive-row-btn" type="button"><i href="#" class="icon-ok" ></i></button>'
 			+		'<button class="btn del-row-btn" type="button"><i href="#" class="icon-trash" ></i></button>'
 			+	'</div>'] ); 
@@ -504,7 +551,7 @@ var dTable = {
 					dTable.learned.renderRow(rs.rows.item(i));
 				}
 			} else {
-				console.log('Warning!: There are no words with status "learned" in the table');
+				console.log('[Warning] There are no words with status "learned" in the table');
 			}
 			updateTabName('learned');
 		},
@@ -518,14 +565,15 @@ var dTable = {
 		},
 		renderRow: function(row) {
 			"use strict"
-			var  cRowElement, a;
+			var  cRowElement, a, audioBtnHtml;
 			// Add row to data table
+			audioBtnHtml = googleTranslate.getAttrValue(getBg().ls.get('activeTable').iLearn, 'hasAudio') ? '<button class="btn play-btn connection-dependent" type="button" '+ (getBg().util.isOnline()? '' :  'disabled')+'><i href="#" class="icon-play" ></i></button>' : '';
 			a = learnedDT.fnAddData( [
 				'<div id="word'+ row.id +'" class="" lt_dbLinked="word" >'+row.word+'</div>',
 				'<div id="translation_'+ row.id +'" class="" lt_dbLinked="translation">'+row.translation+'</div>',
 				'<div id="description_'+ row.id +'" class="" lt_dbLinked="description">'+row.description+'</div>',
 				'<div class="btn-group">'
-			+		'<button class="btn play-btn" type="button" '+ (isOnline() ? "" : "disabled='disabled'")  +'><i href="#" class="icon-play" ></i></button>'
+			+		audioBtnHtml
 			+		'<button class="btn repeat-row-btn" type="button"><i href="#" class="icon-repeat" ></i></button>'
 			+	'</div>'] ); 
 			
@@ -543,23 +591,28 @@ var dTable = {
 			"use strict"
 			var i, row;
 			if (rs.rows.length) {
+				console.log('[Info] dicts.load - Found '+rs.rows.length+' tables in database.');
 				for (i = rs.rows.length-1; i >= 0 ; i--) {
 					row = rs.rows.item(i);
-					if (row.name !== "__WebKitDatabaseInfoTable__" && row.name !=="sqlite_sequence"){
-						//console.log(row);
+					if (row.name !== "__WebKitDatabaseInfoTable__" && row.name !=="sqlite_sequence" && row.name !==""){
 						dTable.dicts.renderRow(rs.rows.item(i));
 					}
 				}
-				dTable.dicts.markActive();
+				dTable.dicts.selectActive();
 			} else {
-				console.log('Warning!: There is no table in database');
+				console.log('[Warning] dicts.load - There is no table in database. Opening modal window.');
+				$('#addTableModal').modal();
 			}
 		},
 		remove: function(entryId){
 			"use strict"
-			var rowPos = dictsDT.fnGetPosition( $('tr.table-row[lt_dbLinked='+entryId+']')[0] );
+			var rowToDelete, rowPos;//, isActive;
+			rowToDelete = $('tr.table-row[lt_dbLinked='+entryId+']');
+			rowPos = dictsDT.fnGetPosition( rowToDelete[0] );
+			// isActive = $('.table-row').find('input.activate-table-radio').prop('checked');
 			if(rowPos !== null){
 			  dictsDT.fnDeleteRow(rowPos);  // delete row
+			  dTable.dicts.selectActive();
 			}
 			// TODO: new set active db in case active is deleted
 		},
@@ -571,14 +624,14 @@ var dTable = {
 			a = dictsDT.fnAddData( [
 				'<label class="radio">'
 				+	'<input class="activate-table-radio" type="radio" name="selectTable" data-lskey="activeTable" value="'+ row.name +'" >'
-				+	'<span class="label label-info table-name">'+ tName_array[0] + ' | '+ tName_array[1]+'</span>'
+				+	'<span class="label label-info table-name">Learn '+ googleTranslate.getAttrValue(tName_array[1], 'name') +'</span>'
 				+'</label>',
-				'<div class="" lt_dbLinked="fromLanguage">'
-				+	'<span class="label label-info label-from-language">'+ tName_array[0] + '</span>' // TODO: map "EN to English"
+				'<div class="" lt_dbLinked="nativeLang">'
+				+	'<span class="label-from-language">'+ googleTranslate.getAttrValue(tName_array[0], 'name') + '</span>'
 				+'</div>',
-				'<div class="" lt_dbLinked="toLanguage">'
-				+	'<span class="label label-info label-to-language">'+ tName_array[1] + '</span>' // TODO: map "EN to English"
-				+'</div>',
+				/*'<div class="" lt_dbLinked="toLearnLang">'
+				+	'<span class="label-to-language">'+ googleTranslate.getAttrValue(tName_array[1], 'name') + '</span>'
+				+'</div>',*/
 				'<button class="del-table-btn btn" type="button" ><i href="#" class="icon-trash"></i></button>'] ); 
 			
 			// Add attributes to the added row 
@@ -589,21 +642,36 @@ var dTable = {
 		length: function(){
 			return dictsDT.fnSettings().fnRecordsTotal();
 		},
-		markActive: function(){
-			var tableName, radioBox;
-			tableName = getBg().ls.getSettings().activeTable;
-			if (typeof tableName !== 'undefined' || tableName !== ""){
-				radioBox = $('table#dictionariesTable').find('input[value="'+ getBg().ls.getSettings().activeTable +'"]')[0];
+		selectActive: function(){
+			var activeTable, radioBox;
+			activeTable = getBg().ls.get('activeTable');
+			if (typeof activeTable.name !== 'undefined' && activeTable.name !== "" && activeTable.name !== null){
+				radioBox = $('table#dictionariesTable').find('input[value="'+ activeTable.name +'"]')[0];
 				if (typeof radioBox !== 'undefined'){
-					$(radioBox).prop('checked', true);
+					console.log('[Info] selectActive - Found radio button with stored table name and made active');
+					$(radioBox).click();  //.prop('checked', true)
 				} else {  // no radio button with that name - > select first radio in table
 					radioBox = $('table#dictionariesTable').find('input[type="radio"]').first()[0];
 					if (typeof radioBox !== 'undefined'){
-						$(radioBox).prop('checked', true).click();
+						console.log('[Info] selectActive - Not found radio button with stored table name, marked active the first found');
+						$(radioBox).click();  //.prop('checked', true)
+					} else {
+						console.log('[Warning] selectActive - Not found radio button with stored table name nor there is radio buttons in the table');
+						getBg().ls.set('activeTable', getBg().ls.defaultSettings.activeTable);
+						$('#addTableModal').modal();
 					}
 				}
-			}else{ // no talbe name defined
-				console.log('markActive: Should start creation of new table');
+			}else{ // no table name defined
+				console.log('[Warning] selectActive - Stored table name is undefined or empty or null. ');
+				radioBox = $('table#dictionariesTable').find('input[type="radio"]').first()[0];
+				if (typeof radioBox !== 'undefined'){
+					console.log('[Info] selectActive - Not found radio button with stored table name, first radio found marked active.');
+					$(radioBox).prop('checked', true).click();
+				} else {
+					console.log('[Warning] selectActive - Not found radio button with stored table name nor there is radio buttons in the table');
+					getBg().ls.set('activeTable', getBg().ls.defaultSettings.activeTable); // restore default name
+					$('#addTableModal').modal();
+				}
 			}
 		}
 		

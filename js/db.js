@@ -1,13 +1,14 @@
 var db = {
 	open: function(){
-		var database, tableName;
-		database = openDatabase('lt_dbsdb', '', 'Database to store word, translation, description... values', 5 * 1024 * 1024);
+		var database, currTableName;
+		database = openDatabase('lt_db', '', 'Database to store word, translation, description... values', 5 * 1024 * 1024);
 		db.open = function() { return database; };
-		tableName = ls.getSettings().activeTable;
-		if (typeof tableName !== 'undefined' || tableName !== ""){
-			db.tx({name: 'create_table', tableName: ls.getSettings().activeTable}, [])
+		currTableName = ls.get('activeTable').name;
+		if (typeof currTableName !== 'undefined' && currTableName !== "" && currTableName !== null){
+			console.log('[Info] About to create/open the table ' + currTableName);
+			db.tx({name: 'create_table', tableName: currTableName}, []);
 		} else {
-			console.log('You should start a procedure to add a table!');
+			console.log('[Warning] No table found! You should start a procedure to add a new table!');
 		}
 		return database;
 	},
@@ -34,25 +35,15 @@ var db = {
 						+	'created DATETIME DEFAULT CURRENT_TIMESTAMP,'
 						+	'modified DATETIME DEFAULT CURRENT_TIMESTAMP);';
 			row = [];
-			console.log('created table: ' + r.tableName);
 			break;
 		case 'drop_table':
 			query = 'DROP TABLE ' + r.tableName;
 			row = [];
 			
 			break;
-
-		// Drop current table
-
-			/*if (SqlClient.db != null && SqlClient.currentTable && SqlClient.currentTable.name) {
-				if (confirm("Delete Table \"" + SqlClient.currentTable.name + "\"?")) {
-					$execute("DROP TABLE " + SqlClient.currentTable.name + ";", []);
-				}
-			}
-		};*/
 		case 'add_entry':
 			var created = new Date();
-			query = 'INSERT INTO '+  ls.getSettings().activeTable +' ('
+			query = 'INSERT INTO '+  ls.get('activeTable').name +' ('
 						+	'word, translation, description, state, hits, tries, created, modified) '
 						+	'VALUES (?,?,?,?,?,?,?,?)';
 			row = [r.word, r.translation, r.description, 'waiting', '0', '0', created, created];
@@ -60,22 +51,22 @@ var db = {
 			break;
 
 		case 'delete_entry':
-			query = 'DELETE FROM '+  ls.getSettings().activeTable +' WHERE ID=? ';
+			query = 'DELETE FROM '+  ls.get('activeTable').name +' WHERE ID=? ';
 			row = [r.id];
 
 			break;
 		case 'edit_entry':
-			query = 'UPDATE '+  ls.getSettings().activeTable +' SET ' + r.editedColumn + '=?, modified=? WHERE id =?';
+			query = 'UPDATE '+  ls.get('activeTable').name +' SET ' + r.editedColumn + '=?, modified=? WHERE id =?';
 			row = [r.newValue, modified, r.id ];
 
 			break;
 		case 'repeat_entry':
-			query = 'UPDATE '+  ls.getSettings().activeTable +' SET state=?, hits=?, tries=?, modified=? WHERE id =?';
+			query = 'UPDATE '+  ls.get('activeTable').name +' SET state=?, hits=?, tries=?, modified=? WHERE id =?';
 			row = ["waiting", 0, 0, modified, r.id ];
 
 			break;
 		case 'validation_update':
-			query = 'UPDATE '+  ls.getSettings().activeTable +' SET tries = tries + 1, hits = ?, state=?, modified=? WHERE id =?';
+			query = 'UPDATE '+  ls.get('activeTable').name +' SET tries = tries + 1, hits = ?, state=?, modified=? WHERE id =?';
 			row = [r.hits, r.state, modified, r.id ];
 
 			break;
@@ -86,13 +77,13 @@ var db = {
 			
 			break;*/
 		case 'get_where':
-			query = 'SELECT * FROM '+  ls.getSettings().activeTable +' WHERE '+ r.colName +' = "'+ r.colVal +'" ';
+			query = 'SELECT * FROM '+  ls.get('activeTable').name +' WHERE '+ r.colName +' = "'+ r.colVal +'" ';
 			row = [];
 			
 			break;
 		case 'get_n_where':
 
-			query = 'SELECT * FROM '+  ls.getSettings().activeTable +' WHERE '+ r.colName +' = "'+ r.colVal +'" LIMIT '+ r.limit +'';
+			query = 'SELECT * FROM '+  ls.get('activeTable').name +' WHERE '+ r.colName +' = "'+ r.colVal +'" LIMIT '+ r.limit +'';
 			row = [];
 			
 			break;
@@ -114,9 +105,11 @@ var db = {
 		alert("There has been a database error: " + e.message);
 	}
 }
+// var storage = chrome.storage.local;
 
 var ls = {
-	getSettings: function(){
+	defaultSettings: {sessionFreq: 120, learnedTreshold: 5, wordsPerSession: 3, learningMode: 'tutorMode', autoPlay: false, activeTable: {name: null, iSpeak: null, iLearn: null, hasAudio: null}},
+	/*getSettings: function(){
 		return ls.get('settings');
 	},
 	setSettings: function(key, value){
@@ -124,28 +117,34 @@ var ls = {
 		mySettings[key] = value;
 		ls.set('settings', mySettings);
 
-	},
+	},*/
 	set: function(key, value){
 		try {
-		  window.localStorage.removeItem(key);
-		  window.localStorage.setItem(key, JSON.stringify(value));
+		  localStorage.removeItem(key);
+		  localStorage[key] = JSON.stringify(value);
+		  console.log('[Info] Saved pair ['+ key +', ' + value +'].');
 		}catch(e) {
 		  console.log("Error inside setItem");
 		  console.log(e);
 		}
 	},
+
 	get: function(key) {
 		var value;
-		try {
-		  value = window.localStorage.getItem(key);
-		}catch(e) {
-		  console.log("Error inside getItem() for key:" + key);
-		  console.log(e);
-		  value = "null";
+		if (key in localStorage) {
+			value = localStorage[key] && JSON.parse(localStorage[key]);
+			console.log('[Info] Loaded ls data pair ['+ key +', ' + value +'].');
+		} else if (key in  ls.defaultSettings){
+			value = ls.defaultSettings[key]; // && JSON.parse(ls.defaultSettings[key]);
+			console.log('[Info] Loaded default data pair ['+ key +', ' + value +'].');
+		} else{
+			console.log('[Error] No local data found for key: "'+key+'"');
+			value = null;
 		}
-		return value && JSON.parse(value);
-	}/*,
-
+		return value;
+	}
+	
+/*
 	clearStrg: function(){ 
 		console.log('about to clear local storage');
 		window.localStorage.clear();

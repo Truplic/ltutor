@@ -4,6 +4,7 @@
 	"description": "Language Tutor",   
 	"manifest_version": 2,
 	"permissions": [
+	"storage",
 	"contextMenus",
 	"notifications",
 	"tabs",

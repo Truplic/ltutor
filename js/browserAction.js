@@ -10,7 +10,7 @@ function initListeners(){
 		chrome.tabs.create({url: chrome.extension.getURL('options.html')});
 	});
 	$('#runDictionary').click(function(){
-		chrome.tabs.create({url: chrome.extension.getURL('options.html#lB')});
+		chrome.tabs.create({url: chrome.extension.getURL('options.html')});
 	});
 	$('#runSettings').click(function(){
 		chrome.tabs.create({url: chrome.extension.getURL('options.html')});
