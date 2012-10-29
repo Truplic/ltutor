@@ -230,7 +230,7 @@ function initListeners(){
 			getBg().ls.set($(this).attr('data-lskey'), $(this).val());
 			console.log($(this).attr('data-lskey')+' changed to '+$(this).val());
 		}
-	}).on('click', 'button.learningMode', function(){
+	}).on('click', 'button.settings-btn', function(){  // settings buttons in general
 		getBg().ls.set($(this).attr('data-lskey'), $(this).attr('data-lsvalue'));
 		console.log('[Info]' + $(this).attr('data-lskey') +' changed to ' + $(this).attr('data-lsvalue'));
 	}).on('click', 'button.lt-toggle-btn', function(){
@@ -407,11 +407,25 @@ function loadDictEntries(){
 
 function loadDefaultSettings(){
 	"use strict"
-	$('#' + getBg().ls.get('learningMode')).button('toggle');
-	$('#sessionFreq').val(getBg().ls.get('sessionFreq'));
-	$('#learnedTreshold').val(getBg().ls.get('learnedTreshold'));
-	$('#wordsPerSession').val(getBg().ls.get('wordsPerSession'));
-	$('#autoPlay').val(getBg().ls.get('autoPlay'));
+	// buttons init
+	$('button.settings-btn').each(function(){
+		var oKey, oValue, lsValue;
+		oKey = $(this).attr('data-lskey');
+		oValue = $(this).attr('data-lsvalue');
+		lsValue = getBg().ls.get(oKey);
+		if (oValue === lsValue){
+			$(this).button('toggle');
+			console.log('[Info] Loaded and initialized button '+oKey+' with value ' + lsValue)
+		}
+	});
+	// fields init
+	$('input.settings-input').each(function(){
+		var oKey, lsValue;
+		oKey = $(this).attr('data-lskey');
+		lsValue = getBg().ls.get(oKey);
+		$(this).val(lsValue);
+		console.log('[Info] Loaded and initialized input field '+oKey+' with value ' + lsValue)
+	});
 }
 
 function loadDictionaries(){
@@ -491,6 +505,7 @@ var dTable = {
 				for (var i=rs.rows.length-1; i >= 0 ; i--) {
 					dTable.toLearn.renderRow(rs.rows.item(i));
 				}
+				$('.trend-chart').sparkline('html', {type: 'bar', barColor: 'green'} );
 			} else{
 				console.log('[Warning] There are no words with status "toLearn" in this table');
 			}
@@ -524,6 +539,7 @@ var dTable = {
 				'<div id="word'+ row.id +'" class="editable" contenteditable="true" lt_dbLinked="word" >'+row.word+'</div>',
 				'<div id="translation_'+ row.id +'" class="editable" contenteditable="true" lt_dbLinked="translation">'+row.translation+'</div>',
 				'<div id="description_'+ row.id +'" class="editable" contenteditable="true" lt_dbLinked="description">'+row.description+'</div>',
+				'<span class="trend-chart">'+row.trend+'</span>',
 				'<div class="hidden">'+ hits +'</div>' // added to enable column sorting
 			+	'<div class="progress progress-success progress-striped active" '+ hideAttr +'>'
 			+	  '<div class="bar" style="width:'+hits+'%;"></div>'
@@ -572,6 +588,7 @@ var dTable = {
 				'<div id="word'+ row.id +'" class="" lt_dbLinked="word" >'+row.word+'</div>',
 				'<div id="translation_'+ row.id +'" class="" lt_dbLinked="translation">'+row.translation+'</div>',
 				'<div id="description_'+ row.id +'" class="" lt_dbLinked="description">'+row.description+'</div>',
+				'<span class="trend-chart">'+row.trend+'</span>',
 				'<div class="btn-group">'
 			+		audioBtnHtml
 			+		'<button class="btn repeat-row-btn" type="button"><i href="#" class="icon-repeat" ></i></button>'

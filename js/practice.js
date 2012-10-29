@@ -95,9 +95,11 @@ practiceHandler = {
 		if (practiceHandler.data_array.length) {  // check if data is fetched
 			if(practiceHandler.n_currentWord < practiceHandler.data_array.length){ 	// check if there are words to practice left
 				$('#practiceProgress').find('.bar').css('width', ((practiceHandler.n_currentWord/practiceHandler.data_array.length)*100)+'%');
-				$('.word').html(practiceHandler.data_array[practiceHandler.n_currentWord].word);
-				$('.description').html(practiceHandler.data_array[practiceHandler.n_currentWord].description);
-				practiceHandler.playAudio();
+				$('.word').html(practiceHandler.getCurrentEntry().word);
+				$('.description').html(practiceHandler.getCurrentEntry().description);
+
+				if (getBg().ls.get('autoPlay') === 'true')  // it is stored as a string in this case
+					practiceHandler.playAudio();
 			}else{
 				$('div.practice-container').children().remove();
 				$('div.practice-container').append('<div class="alert alert-success">'
@@ -142,13 +144,13 @@ practiceHandler = {
 		$('.translation').focus();
 	},
 	updateDb: function(n_newHits){
-		var newState;
+		var newState, orgEntry, mewTrend;
 		console.log('updateDb: '+n_newHits);
 		n_newHits = Math.max(0, Math.min(practiceHandler.s_learnedTreshold, n_newHits));  // bounding [0, learnedTreshold]; 
 		newState = (n_newHits >= practiceHandler.s_learnedTreshold) ? 'learned' : 'active';
-
-		console.log('State is: '+newState);
-		getBg().db.tx({name: 'validation_update', id: practiceHandler.data_array[practiceHandler.n_currentWord].id, hits: n_newHits, state: newState}, []);
+		mewTrend = practiceHandler.getCurrentEntry().trend.toString() + n_newHits.toString() + ',';
+		console.log('State is: '+mewTrend);
+		getBg().db.tx({name: 'validation_update', id: practiceHandler.getCurrentEntry().id, hits: n_newHits, trend: mewTrend, state: newState}, []);
 	},
 	setNextWord: function(){
 		practiceHandler.n_currentWord ++;

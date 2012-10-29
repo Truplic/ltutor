@@ -107,6 +107,7 @@
 										<th>Word</th>
 										<th>Translation</th>
 										<th>Description</th>
+										<th>Trend</th>
 										<th>%</th>
 										<th>Actions</th>
 								   </tr>
@@ -120,6 +121,7 @@
 										<th>Word</th>
 										<th>Translation</th>
 										<th>Description</th>
+										<th>Trend</th>
 										<th>Actions</th>
 								   </tr>
 								</thead>
@@ -133,8 +135,8 @@
 						  <label class="control-label" for="tutorMode">Learning Mode</label>
 						  <div class="controls">
 							<div class="btn-group" data-toggle="buttons-radio">
-							  <button id="tutorMode" type="button" class="btn learningMode" data-toggle="button" data-lskey="learningMode" data-lsvalue="tutorMode">Language Tutor</button>
-							  <button id="cardsMode" type="button" class="btn learningMode" data-toggle="button" data-lskey="learningMode" data-lsvalue="cardsMode">Flash Cards</button>
+							  <button id="tutorMode" type="button" class="btn settings-btn" data-toggle="button" data-lskey="learningMode" data-lsvalue="tutorMode">Language Tutor</button>
+							  <button id="cardsMode" type="button" class="btn settings-btn" data-toggle="button" data-lskey="learningMode" data-lsvalue="cardsMode">Flash Cards</button>
 							</div>
 							<span class="help-inline"><i href="#" class="icon-question-sign" rel="tooltip" data-trigger="hover" title="Expl for Learning Mode"></i></span>
 						  </div>
@@ -143,7 +145,7 @@
 						  <label class="control-label" for="sessionFreq">Repeat Every</label>
 						  <div class="controls">
 							<div class="input-append">
-							  <input class="span2 numerical-uint" id="sessionFreq" size="16" type="text" data-lskey="sessionFreq"><span class="add-on">min</span>
+							  <input class="span2 numerical-uint settings-input" id="sessionFreq" size="16" type="text" data-lskey="sessionFreq"><span class="add-on">min</span>
 							</div>
 							<span class="help-inline"><i href="#" class="icon-question-sign" rel="tooltip" data-trigger="hover" title="0 for non repeating"></i></span>
 						  </div>
@@ -152,7 +154,7 @@
 						  <label class="control-label" for="learnedTreshold">Archive Word After</label>
 						  <div class="controls">
 							<div class="input-append">
-							  <input class="span2 numerical-uint" id="learnedTreshold" size="16" type="text" data-lskey="learnedTreshold" ><span class="add-on">hits</span>
+							  <input class="span2 numerical-uint settings-input" id="learnedTreshold" size="16" type="text" data-lskey="learnedTreshold" ><span class="add-on">hits</span>
 							</div>
 							<span class="help-inline"><i href="#" class="icon-question-sign" rel="tooltip" data-trigger="hover" title="Word will be moved to 'learned' table " ></i></span>
 						  </div>
@@ -160,15 +162,18 @@
 						<div class="control-group">
 						  <label class="control-label" for="wordsPerSession">Words Per Session</label>
 						  <div class="controls">
-							<input class="span2 numerical-uint" id="wordsPerSession" size="16" type="text" data-lskey="wordsPerSession">
+							<input class="span2 numerical-uint settings-input" id="wordsPerSession" size="16" type="text" data-lskey="wordsPerSession">
 							<span class="help-inline"><i href="#" class="icon-question-sign" rel="tooltip" data-trigger="hover" title="Words per session" ></i></span>
 						  </div>
 						</div>
 						<div class="control-group">
-						  <label class="control-label" for="autoPlay">Autoplay Pronunciation</label>
+						  <label class="control-label" for="">Autoplay Pronunciation</label>
 						  <div class="controls">
-							<button id="autoPlay" type="button lt-toggle-btn" class="btn" data-toggle="button" data-lskey="autoPlay" data-lsvalue="false"></button>
-							<span class="help-inline"><i href="#" class="icon-question-sign" rel="tooltip" data-trigger="hover" title="Plays word automatically while practicing" ></i></span>
+							<div class="btn-group" data-toggle="buttons-radio">
+							  <button class="btn settings-btn" type="button" data-lskey="autoPlay" data-lsvalue="true">Yes</button>
+							  <button class="btn settings-btn" type="button" data-lskey="autoPlay" data-lsvalue="false">No</button>
+							</div>
+							<span class="help-inline"><i href="#" class="icon-question-sign" rel="tooltip"  data-trigger="hover" title="Plays word automatically while practicing" ></i></span>
 						  </div>
 						</div>
 						<div class="control-group">
@@ -317,6 +322,7 @@
     <script src="assets/js/bootstrap-typeahead.js"></script>
 	<script src="js/DataTables/js/jquery.dataTables.min.js"></script>
 	<script src="js/DataTables/js/DT_bootstrap.js"></script>
+	<script src="js/jquery.sparkline.min.js"></script>
 	<script src="js/options.js"></script>
 	<script src="js/gtranslate.js"></script>
 

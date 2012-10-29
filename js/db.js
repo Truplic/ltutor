@@ -32,6 +32,7 @@ var db = {
 						+	'state TEXT,'
 						+	'hits UNSIGNED INTEGER NOT NULL,'
 						+	'tries UNSIGNED INTEGER NOT NULL,'
+						+	'trend TEXT,'
 						+	'created DATETIME DEFAULT CURRENT_TIMESTAMP,'
 						+	'modified DATETIME DEFAULT CURRENT_TIMESTAMP);';
 			row = [];
@@ -44,9 +45,9 @@ var db = {
 		case 'add_entry':
 			var created = new Date();
 			query = 'INSERT INTO '+  ls.get('activeTable').name +' ('
-						+	'word, translation, description, state, hits, tries, created, modified) '
-						+	'VALUES (?,?,?,?,?,?,?,?)';
-			row = [r.word, r.translation, r.description, 'waiting', '0', '0', created, created];
+						+	'word, translation, description, state, hits, tries, trend, created, modified) '
+						+	'VALUES (?,?,?,?,?,?,?,?,?)';
+			row = [r.word, r.translation, r.description, 'waiting', '0', '0', '', created, created];
 			
 			break;
 
@@ -66,8 +67,9 @@ var db = {
 
 			break;
 		case 'validation_update':
-			query = 'UPDATE '+  ls.get('activeTable').name +' SET tries = tries + 1, hits = ?, state=?, modified=? WHERE id =?';
-			row = [r.hits, r.state, modified, r.id ];
+			//var myTrend = r.hits + ';';
+			query = 'UPDATE '+  ls.get('activeTable').name +' SET tries = tries + 1, hits = ?, state=?, trend=?, modified=? WHERE id =?';
+			row = [r.hits, r.state, r.trend, modified, r.id ];
 
 			break;
 		/*case 'get_all_entries':
@@ -108,7 +110,7 @@ var db = {
 // var storage = chrome.storage.local;
 
 var ls = {
-	defaultSettings: {sessionFreq: 120, learnedTreshold: 5, wordsPerSession: 3, learningMode: 'tutorMode', autoPlay: false, activeTable: {name: null, iSpeak: null, iLearn: null, hasAudio: null}},
+	defaultSettings: {sessionFreq: 120, learnedTreshold: 5, wordsPerSession: 3, learningMode: 'tutorMode', autoPlay: true, activeTable: {name: null, iSpeak: null, iLearn: null, hasAudio: null}},
 	/*getSettings: function(){
 		return ls.get('settings');
 	},
@@ -135,7 +137,7 @@ var ls = {
 			value = localStorage[key] && JSON.parse(localStorage[key]);
 			console.log('[Info] Loaded ls data pair ['+ key +', ' + value +'].');
 		} else if (key in  ls.defaultSettings){
-			value = ls.defaultSettings[key]; // && JSON.parse(ls.defaultSettings[key]);
+			value = ls.defaultSettings[key];
 			console.log('[Info] Loaded default data pair ['+ key +', ' + value +'].');
 		} else{
 			console.log('[Error] No local data found for key: "'+key+'"');
