@@ -72,12 +72,12 @@ var db = {
 			row = [r.hits, r.state, r.trend, modified, r.id ];
 
 			break;
-		/*case 'get_all_entries':
+		case 'get_all_entries':
 
-			query = 'SELECT * FROM lt_dbs ';
+			query = 'SELECT * FROM '+r.tableName;
 			row = [];
 			
-			break;*/
+			break;
 		case 'get_where':
 			query = 'SELECT * FROM '+  ls.get('activeTable').name +' WHERE '+ r.colName +' = "'+ r.colVal +'" ';
 			row = [];
@@ -110,7 +110,7 @@ var db = {
 // var storage = chrome.storage.local;
 
 var ls = {
-	defaultSettings: {sessionFreq: 120, learnedTreshold: 5, wordsPerSession: 3, learningMode: 'tutorMode', autoPlay: true, activeTable: {name: null, iSpeak: null, iLearn: null, hasAudio: null}},
+	defaultSettings: {sessionFreq: 120, learnedTreshold: 5, wordsPerSession: 3, learningMode: 'tutorMode', autoPlay: "true", activeTable: {name: null, iSpeak: null, iLearn: null, hasAudio: null}},
 	/*getSettings: function(){
 		return ls.get('settings');
 	},

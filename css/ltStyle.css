@@ -13,10 +13,10 @@ table#toLearnTable tr td:nth-child(5),
 /*table#toLearnTable tr td:nth-child(6), */
 table#learnedTable tr td:nth-child(4){ vertical-align: middle; text-align: center; }
 
-table#toLearnTable tr td:nth-child(5){ width:150px; }
-table#toLearnTable tr td:nth-child(6)/*,
+table#toLearnTable tr td:nth-child(4){ width:150px; }
+table#toLearnTable tr td:nth-child(5)/*,
 table#toLearnTable tr td:nth-child(6)*/{ width:130px; }
-table#learnedTable tr td:nth-child(5){ width:90px; }
+table#learnedTable tr td:nth-child(4){ width:90px; }
 
 
 .dropdown-menu li > div.category { padding: 5px 0px 0px 10px; cursor:default;}

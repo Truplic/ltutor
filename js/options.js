@@ -1,4 +1,5 @@
 $(function(){
+	selectTab();
 	loadDefaultSettings();
 	dTable.init();  // init data tables
 	loadDictionaries();
@@ -8,6 +9,13 @@ $(function(){
 	initListeners();
 });
 
+function selectTab(){
+	var url = document.location.toString();
+	if (url.match('#')) {
+		$('.nav-tabs a[href=#'+url.split('#')[1]+']').tab('show');
+		console.log($('.nav-tabs a[href=#'+url.split('#')[1]+']'));
+	} 
+}
 
 function initListeners(){
 	"use strict"
@@ -77,13 +85,15 @@ function initListeners(){
 			} else {
 				translationField.val(translationContent + ', ' + wordToAdd); // Merge with other content
 			}
+			caretStart = caretEnd = translationField.val().length; // set caret to the end
+		}else{
+			caretStart = translationField.val().indexOf(wordToAdd);  // mark existing word
+			caretEnd = caretStart + wordToAdd.length;
+			
 		}
-		
-		translationField.focus();
-		// set caret
-		caretStart = translationField.val().indexOf(wordToAdd);  // TODO: domacinstvo & dom -> wrong selection
-		caretEnd = caretStart + wordToAdd.length;
 		translationField.selectRange(caretStart,caretEnd);
+		translationField.focus();
+
 
 	}).on('click', '#translation', function(e){
 		e.stopPropagation();
@@ -264,6 +274,14 @@ function initListeners(){
 		})
 		$(this).popover('show');
 		e.stopPropagation();
+	}).on('click', '.save-table-btn', function(e){
+		console.log('[Info] Save table ' + $(this).closest('tr.table-row').attr('lt_dblinked'));
+		//$(this).closest('tr.table-row').attr('lt_dblinked');
+		var myTableName = $(this).closest('tr.table-row').attr('lt_dblinked');
+		getBg().db.tx({ 	name: 'get_all_entries', 
+							tableName: myTableName
+						}, saveToXml.fetch); 
+		
 	}).on('click', '.activate-table-radio', function(){
 		var currTable, tableName_array;
 		$('#dictionariesTable').find('tr.table-row').removeClass('info');
@@ -302,6 +320,45 @@ function initListeners(){
 	}).on('offline', function(e){
 		updateConnectionStatus(false);
 	});
+}
+
+var saveToXml = {
+	fetch: function(tx, rs){
+	var row;
+		if (rs.rows.length) {
+			var xw = new XMLWriter('UTF-8');
+			xw.formatting = 'indented';//add indentation and newlines
+			xw.indentChar = ' ';//indent with spaces
+			xw.indentation = 2;//add 2 spaces per level
+
+			xw.writeStartDocument( );
+			xw.writeDocType('"items.dtd"');
+			xw.writeStartElement( 'dictionary' );
+
+			for (var i=rs.rows.length-1; i >= 0 ; i--) {
+				row = rs.rows.item(i);
+				//console.log(row);
+				xw.writeStartElement( 'word' );
+					xw.writeElementString('id', row.id.toString());
+					xw.writeElementString('foreign', row.word);
+					xw.writeElementString('known', row.translation);
+					xw.writeElementString('example', row.description);
+					xw.writeElementString('state', row.state);
+					xw.writeElementString('hits', row.hits.toString());
+					xw.writeElementString('tries', row.tries.toString());
+					xw.writeElementString('trend', row.trend.toString());
+					xw.writeElementString('created', row.created);
+					xw.writeElementString('modified', row.modified);
+				xw.writeEndElement();
+			}
+			xw.writeEndElement();
+			xw.writeEndDocument();
+		} else{
+			console.log('[Warning] There are no words with status "toLearn" in this table');
+		}
+		console.log(xw.flush());
+	}
+
 }
 
 function updateConnectionStatus(){
@@ -352,6 +409,7 @@ var newWordForm = {
 	resetFields: function(){
 		$('div.add-word-form').find('textarea, input, .editable').val('').text('');				// reset values
 		$('#playWordBtn').addClass('hidden');
+		$('#translation').closest('div.dropdown').find('ul.dropdown-menu').remove();
 	},
 	indicateSucess: function(){
 		//$('#sucessAlert').fadeIn("slow").fadeOut('slow');
@@ -378,8 +436,8 @@ var newWordForm = {
 			$.each(resp.dict, function(index, value){  
 				dropdownMenuStream += '<li><div class="category"><strong>' + value.pos + '</strong></div></li>';
 				$.each(value.entry, function(index, value){
-					if (gTranslation !== value.word )
-						dropdownMenuStream +='<li><a class="addword-dropdown" tabindex="-1" class="category">' +value.word + '</a></li>';
+					//if (gTranslation !== value.word )
+					dropdownMenuStream +='<li><a class="addword-dropdown" tabindex="-1" class="category">' +value.word + '</a></li>';
 				});
 			});
 			dropdownMenuStream += '</ul>'
@@ -505,7 +563,6 @@ var dTable = {
 				for (var i=rs.rows.length-1; i >= 0 ; i--) {
 					dTable.toLearn.renderRow(rs.rows.item(i));
 				}
-				$('.trend-chart').sparkline('html', {type: 'bar', barColor: 'green'} );
 			} else{
 				console.log('[Warning] There are no words with status "toLearn" in this table');
 			}
@@ -539,7 +596,7 @@ var dTable = {
 				'<div id="word'+ row.id +'" class="editable" contenteditable="true" lt_dbLinked="word" >'+row.word+'</div>',
 				'<div id="translation_'+ row.id +'" class="editable" contenteditable="true" lt_dbLinked="translation">'+row.translation+'</div>',
 				'<div id="description_'+ row.id +'" class="editable" contenteditable="true" lt_dbLinked="description">'+row.description+'</div>',
-				'<span class="trend-chart">'+row.trend+'</span>',
+				//'<span class="trend-chart">'+row.trend+'</span>',
 				'<div class="hidden">'+ hits +'</div>' // added to enable column sorting
 			+	'<div class="progress progress-success progress-striped active" '+ hideAttr +'>'
 			+	  '<div class="bar" style="width:'+hits+'%;"></div>'
@@ -588,7 +645,7 @@ var dTable = {
 				'<div id="word'+ row.id +'" class="" lt_dbLinked="word" >'+row.word+'</div>',
 				'<div id="translation_'+ row.id +'" class="" lt_dbLinked="translation">'+row.translation+'</div>',
 				'<div id="description_'+ row.id +'" class="" lt_dbLinked="description">'+row.description+'</div>',
-				'<span class="trend-chart">'+row.trend+'</span>',
+				//'<span class="trend-chart">'+row.trend+'</span>',
 				'<div class="btn-group">'
 			+		audioBtnHtml
 			+		'<button class="btn repeat-row-btn" type="button"><i href="#" class="icon-repeat" ></i></button>'
@@ -649,7 +706,10 @@ var dTable = {
 				/*'<div class="" lt_dbLinked="toLearnLang">'
 				+	'<span class="label-to-language">'+ googleTranslate.getAttrValue(tName_array[1], 'name') + '</span>'
 				+'</div>',*/
-				'<button class="del-table-btn btn" type="button" ><i href="#" class="icon-trash"></i></button>'] ); 
+				'<div class="btn-group">'
+				+	'<button class="save-table-btn btn" type="button" ><i href="#" class="icon-download-alt"></i></button>'
+				+	'<button class="del-table-btn btn" type="button" ><i href="#" class="icon-trash"></i></button>'
+				+'</div>'	] ); 
 			
 			// Add attributes to the added row 
 			cRowElement = dictsDT.fnSettings().aoData[ a ].nTr;

@@ -50,13 +50,13 @@
 	<div class="container">
 			<div class="lt-navig-tabs tabbable tabs-left">
               <ul class="nav nav-tabs">
-                <li class="active"><a href="#lA" data-toggle="tab">Add Word</a></li>
-                <li class=""><a href="#lB" data-toggle="tab">Dictionary</a></li>
-                <li><a href="#lC" data-toggle="tab">Settings</a></li>
-				<li><a href="#lD" data-toggle="tab">Statistics</a></li>
+                <li class="active"><a href="#addWordTab" data-toggle="tab">Add Word</a></li>
+                <li class=""><a href="#dictionaryTab" data-toggle="tab">Dictionary</a></li>
+                <li><a href="#settingsTab" data-toggle="tab">Settings</a></li>
+				<li><a href="#statisticsTab" data-toggle="tab">Statistics</a></li>
               </ul>
               <div class="tab-content">
-                <div class="tab-pane active" id="lA">
+                <div class="tab-pane active" id="addWordTab">
 					<div class="add-word-form">
 						<form class="form-horizontal">
 							<div class="control-group">
@@ -94,7 +94,7 @@
 
 					</div>
                 </div>
-                <div class="tab-pane" id="lB">
+                <div class="tab-pane" id="dictionaryTab">
 					<ul class="nav nav-tabs">
 					  <li class="active"><a href="#dictToLearnContainer" data-toggle="tab">To Learn (<span id="nToLearnInd"></span>)</a></li>
 					  <li><a href="#dictLearnedContainer" data-toggle="tab">Learned (<span id="nLearnInd"></span>)</a></li>
@@ -107,7 +107,6 @@
 										<th>Word</th>
 										<th>Translation</th>
 										<th>Description</th>
-										<th>Trend</th>
 										<th>%</th>
 										<th>Actions</th>
 								   </tr>
@@ -121,7 +120,6 @@
 										<th>Word</th>
 										<th>Translation</th>
 										<th>Description</th>
-										<th>Trend</th>
 										<th>Actions</th>
 								   </tr>
 								</thead>
@@ -129,7 +127,7 @@
 						</div>
 					</div>
                 </div>
-                <div class="tab-pane" id="lC">
+                <div class="tab-pane" id="settingsTab">
 					<form id="settingsContainer" class="form-horizontal">
 						<div class="control-group">
 						  <label class="control-label" for="tutorMode">Learning Mode</label>
@@ -187,16 +185,16 @@
 							  <div class="modal-body">
 								<form class="form-horizontal">
 								  <div class="control-group">
-									<label class="control-label" for="nativeLang">I Speak</label>
+									<label class="control-label" for="toLearnLang">I Want To Learn</label>
 									<div class="controls">
-										<select id="nativeLang">
+										<select id="toLearnLang">
 										</select>
 									</div>
 								  </div>
 								  <div class="control-group">
-									<label class="control-label" for="toLearnLang">I Want To Learn</label>
+									<label class="control-label" for="nativeLang">I Speak</label>
 									<div class="controls">
-										<select id="toLearnLang">
+										<select id="nativeLang">
 										</select>
 									</div>
 								  </div>
@@ -228,7 +226,7 @@
 						</div>
 					</form>
                 </div>
-                <div class="tab-pane" id="lD">
+                <div class="tab-pane" id="statisticsTab">
                   <p>What up girl, this is Section D.</p>
                 </div>
               </div>
@@ -322,9 +320,8 @@
     <script src="assets/js/bootstrap-typeahead.js"></script>
 	<script src="js/DataTables/js/jquery.dataTables.min.js"></script>
 	<script src="js/DataTables/js/DT_bootstrap.js"></script>
-	<script src="js/jquery.sparkline.min.js"></script>
 	<script src="js/options.js"></script>
 	<script src="js/gtranslate.js"></script>
-
+	<script src="js/XMLWriter-1.0.0-min.js"></script>
   </body>
 </html>
