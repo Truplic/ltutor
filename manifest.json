@@ -1,14 +1,22 @@
  {
-	"name": "Hello World!",   
+	"name": "FlashCardTutor!",   
 	"version": "1.0",   
 	"description": "Language Tutor",   
 	"manifest_version": 2,
 	"permissions": [
-	"storage",
+	"unlimitedStorage",
 	"contextMenus",
 	"notifications",
 	"tabs",
 	"http://translate.google.com/"
+	],
+	"content_scripts": [
+	{
+		"all_frames": true,
+		"css": ["assets/css/bootstrap.css"],
+		"matches": ["http://*/*", "https://*/*"],
+		"js": ["assets/js/jquery.js", "assets/js/bootstrap-tooltip.js", "assets/js/bootstrap-popover.js", "js/contentScript.js"]
+	}
 	],
 	"icons": { 
 		"16": "icons/icon_16x16.png",

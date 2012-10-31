@@ -152,6 +152,13 @@ chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
 	if(request.action === 'sendSessionData'){  // Called from practice page in order to send the data
 		//console.log(request.action);
 		practice.sendSessionData();
+	} else if (request.action === 'addWordToDict') {
+		console.log('should add word' + request.word);
+		db.tx({	name: 'add_entry', 
+				word: request.word,
+				translation: request.translation,
+				description: request.example
+			}, []);
 	}
 });
 
@@ -187,7 +194,7 @@ var util = {
 			if (info.pageUrl.match(/https:\/\/chrome.google.com\/[extensions|webstore]/i))
 				return alert('Lingvo Tutor can\'t add words from thos page.');
 
-			chrome.tabs.create({url: chrome.extension.getURL('options.html')});
+			chrome.tabs.create({url: chrome.extension.getURL('options.html#addWordTab')});
 		}, 
 		contexts:['all']
 	});

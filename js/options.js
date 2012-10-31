@@ -138,7 +138,7 @@ function initListeners(){
 					+	  '<button type="button" class="delete-word-btn btn btn-primary btn-danger span6" lt_dblinked="'+$(this).closest('tr.table-row').attr('lt_dblinked')+'">Yes</button>'
 					+	  '<button type="button" class="cancel-popup-btn btn span6">Cancel</button>'
 					+	'</div>'},
-			title: function(){ return 'Delete word <strong>'+ $(this).closest('tr.table-row').find('div.editable[lt_dblinked="word"]').text() +'</strong>?'}
+			title: function(){ return 'Delete word <strong>'+ $(this).closest('tr.table-row').find('div.editable[lt_dblinked="word"]').text() +'</strong>?';}
 		})
 		$(this).popover('show');
 		e.stopPropagation();
@@ -332,7 +332,7 @@ var saveToXml = {
 			xw.indentation = 2;//add 2 spaces per level
 
 			xw.writeStartDocument( );
-			xw.writeDocType('"items.dtd"');
+			// xw.writeDocType('"items.dtd"');
 			xw.writeStartElement( 'dictionary' );
 
 			for (var i=rs.rows.length-1; i >= 0 ; i--) {
