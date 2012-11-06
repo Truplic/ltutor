@@ -1,5 +1,5 @@
  var googleTranslate = { 
-	translationRequest: function(langFrom, langTo, text, onSucessFn, onErrorFn) {
+	translationRequest: function(langFrom, langTo, text, fieldId, onSucessFn, onErrorFn) {
 		var url, xhr;
 		
 		url = this.getGoogleUrl("translate", langFrom, langTo, text);
@@ -11,7 +11,7 @@
 			if(xhr.responseText.length){
 				// var resp = JSON.parse(xhr.responseText);
 				// console.log(resp);
-				onSucessFn(JSON.parse(xhr.responseText));
+				onSucessFn(JSON.parse(xhr.responseText), fieldId);
 			}
 		  }
 		}

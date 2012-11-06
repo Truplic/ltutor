@@ -13,9 +13,9 @@
 	"content_scripts": [
 	{
 		"all_frames": true,
-		"css": ["assets/css/bootstrap.css"],
+		"css": ["libs/contentScript/css/bootstrap.css"],
 		"matches": ["http://*/*", "https://*/*"],
-		"js": ["assets/js/jquery.js", "assets/js/bootstrap-tooltip.js", "assets/js/bootstrap-popover.js", "js/contentScript.js"]
+		"js": ["libs/js/jquery.js", "libs/js/bootstrap-tooltip.js", "libs/js/bootstrap-popover.js", "js/contentScript.js"]
 	}
 	],
 	"icons": { 

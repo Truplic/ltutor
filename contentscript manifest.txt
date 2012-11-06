@@ -1,0 +1,8 @@
+	//"content_scripts": [
+	//{
+	//	"all_frames": true,
+	//	"css": ["libs/contentScript/css/bootstrap.css"],
+	//	"matches": ["http://*/*", "https://*/*"],
+	//	"js": ["libs/js/jquery.js", "libs/js/bootstrap-tooltip.js", "libs/js/bootstrap-popover.js", "js/contentScript.js"]
+	//}
+	//],

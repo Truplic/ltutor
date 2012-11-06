@@ -8,13 +8,13 @@
     <meta name="author" content="">
 
     <!-- Le styles -->
-    <link href="assets/css/bootstrap.css" rel="stylesheet">
+    <link href="libs/css/bootstrap.css" rel="stylesheet">
     <style>
       body {
         padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
       }
     </style>
-    <link href="assets/css/bootstrap-responsive.css" rel="stylesheet">
+    <link href="libs/css/bootstrap-responsive.css" rel="stylesheet">
 	<link href="css/ltStyle.css" rel="stylesheet">
 
     <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
@@ -23,11 +23,11 @@
     <![endif]-->
 
     <!-- Le fav and touch icons -->
-    <link rel="shortcut icon" href="assets/ico/favicon.ico">
-    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="assets/ico/apple-touch-icon-144-precomposed.png">
-    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="assets/ico/apple-touch-icon-114-precomposed.png">
-    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="assets/ico/apple-touch-icon-72-precomposed.png">
-    <link rel="apple-touch-icon-precomposed" href="assets/ico/apple-touch-icon-57-precomposed.png">
+    <link rel="shortcut icon" href="libs/ico/favicon.ico">
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="libs/ico/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="libs/ico/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="libs/ico/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="libs/ico/apple-touch-icon-57-precomposed.png">
   </head>
 
   <body>
@@ -55,14 +55,14 @@
                 <li><a href="#settingsTab" data-toggle="tab">Settings</a></li>
 				<li><a href="#statisticsTab" data-toggle="tab">Statistics</a></li>
               </ul>
-              <div class="tab-content">
+              <div class="tab-content" id="tabsContainer">
                 <div class="tab-pane active" id="addWordTab">
 					<div class="add-word-form">
 						<form class="form-horizontal">
 							<div class="control-group">
 							  <label class="control-label" for="word">Word*</label>
 							  <div class="controls">
-								<input id="word" class="span6" type="text" placeholder="">
+								<input id="word" class="word-box span6 new-word" type="text" placeholder="" data-for="translation">
 								<button id="playWordBtn" class="btn hidden connection-dependent" type="button" ><i href="#" class="icon-play" ></i></button>
 								<span class="help-inline" style="display:none">Please enter the word</span>
 							  </div>
@@ -73,7 +73,7 @@
 								<div class="controls">
 								<!-- <textarea id="translation" class="span6" rows="2" placeholder="translation..." ></textarea> -->
 									<div class="dropdown">
-									  <textarea class="dropdown-toggle span6" id="translation" data-toggle="dropdown" ></textarea> <!-- here the dropdown menu will be apended -->
+									  <textarea class="translation-box dropdown-toggle span6" id="translation" data-toggle="dropdown" data-for="word"></textarea> <!-- here the dropdown menu will be apended -->
 									</div>
 								</div>
 								
@@ -84,7 +84,7 @@
 							<div class="control-group">
 							  <label class="control-label" for="description">Example</label>
 							  <div class="controls">
-								<textarea  id="description" class="span6" ></textarea>
+								<textarea  id="description" class="example-box span6" ></textarea>
 							  </div>
 							</div>
 							<div class="form-actions">
@@ -201,14 +201,11 @@
 								</form>
 							  </div>
 							  <div class="modal-footer">
-								<a href="#" class="btn" data-dismiss="modal">Close</a>
 								<a href="#" id="createNewTableBtn" class="btn btn-primary">Create</a>
+								<a href="#" class="btn" data-dismiss="modal">Cancel</a>
 							  </div>
 							</div>
-							<div class="btn-group">
-								<button class="add-table-btn btn" type="button" data-toggle="modal" ><i href="#" class="icon-plus onine-dependent"></i></button>
-								<button class="dw-table-btn btn" type="button" data-toggle="modal" ><i href="#" class="icon-download-alt"></i></button>
-							</div>
+
 							<table id='dictionariesTable' class="table table-bordered">
 							  <thead>
 								<tr>
@@ -221,7 +218,10 @@
 
 							  </tbody>
 							</table>
-						  
+							<div class="btn-group">
+								<button class="add-table-btn btn" type="button" data-toggle="modal" ><i href="#" class="icon-plus onine-dependent"></i></button>
+								<button class="upload-table-btn btn" type="button" data-toggle="modal" ><i href="#" class="icon-arrow-up"></i></button>
+							</div>
 						  </div>
 						</div>
 					</form>
@@ -305,19 +305,19 @@
     <!-- Le javascript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script src="assets/js/jquery.js"></script>
-    <script src="assets/js/bootstrap-transition.js"></script>
-    <script src="assets/js/bootstrap-alert.js"></script>
-    <script src="assets/js/bootstrap-modal.js"></script>
-    <script src="assets/js/bootstrap-dropdown.js"></script>
-    <script src="assets/js/bootstrap-scrollspy.js"></script>
-    <script src="assets/js/bootstrap-tab.js"></script>
-    <script src="assets/js/bootstrap-tooltip.js"></script>
-    <script src="assets/js/bootstrap-popover.js"></script>
-    <script src="assets/js/bootstrap-button.js"></script>
-    <script src="assets/js/bootstrap-collapse.js"></script>
-    <script src="assets/js/bootstrap-carousel.js"></script>
-    <script src="assets/js/bootstrap-typeahead.js"></script>
+    <script src="libs/js/jquery.js"></script>
+    <script src="libs/js/bootstrap-transition.js"></script>
+    <script src="libs/js/bootstrap-alert.js"></script>
+    <script src="libs/js/bootstrap-modal.js"></script>
+    <script src="libs/js/bootstrap-dropdown.js"></script>
+    <script src="libs/js/bootstrap-scrollspy.js"></script>
+    <script src="libs/js/bootstrap-tab.js"></script>
+    <script src="libs/js/bootstrap-tooltip.js"></script>
+    <script src="libs/js/bootstrap-popover.js"></script>
+    <script src="libs/js/bootstrap-button.js"></script>
+    <script src="libs/js/bootstrap-collapse.js"></script>
+    <script src="libs/js/bootstrap-carousel.js"></script>
+    <script src="libs/js/bootstrap-typeahead.js"></script>
 	<script src="js/DataTables/js/jquery.dataTables.min.js"></script>
 	<script src="js/DataTables/js/DT_bootstrap.js"></script>
 	<script src="js/options.js"></script>

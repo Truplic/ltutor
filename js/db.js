@@ -110,7 +110,7 @@ var db = {
 // var storage = chrome.storage.local;
 
 var ls = {
-	defaultSettings: {sessionFreq: 120, learnedTreshold: 5, wordsPerSession: 3, learningMode: 'tutorMode', autoPlay: "true", activeTable: {name: null, iSpeak: null, iLearn: null, hasAudio: null}},
+	defaultSettings: {sessionFreq: 120, learnedTreshold: 20, wordsPerSession: 15, learningMode: 'tutorMode', autoPlay: "true", activeTable: {name: null, iSpeak: null, iLearn: null, hasAudio: null}},
 	/*getSettings: function(){
 		return ls.get('settings');
 	},

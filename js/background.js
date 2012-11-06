@@ -24,7 +24,7 @@ function init(){
 				notification.show();
 				console.log('[Info] Should show notification to practice from active table ' + tableName);
 			} else {
-				chrome.tabs.create({url: chrome.extension.getURL('options.html')});
+				chrome.tabs.create({url: chrome.extension.getURL('options.html#settingsTab')});
 				console.log('[Info] There is no active table: '+ tableName + '. Opening options page to create one.');
 			}
 		},0.5 * 1000);
@@ -133,24 +133,17 @@ var practice = {
 	
 	},
 	sendSessionData: function(){	// is called from practice tab
+		console.log('[Info] sending data to tab' );
+		chrome.tabs.getSelected(null, function(tabs){
+			chrome.tabs.sendMessage(tabs.id, {action: 'sessionDataArray', data: practice.sessionData});
 		
-		//if (practice.openedTabsId.length){
-			console.log('sending data to tab' );
-			chrome.tabs.getSelected(null, function(tabs){
-				chrome.tabs.sendMessage(tabs.id, {action: 'sessionDataArray', data: practice.sessionData});
-			
-			});
-			//chrome.tabs.sendMessage(practice.openedTabsId[0], practice.sessionData);
-		/*} else {
-			console.log('ERROR! There is no active tabs: ' + practice.openedTabsId );
-		}*/
+		});
 	}
 }
 
 
 chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
 	if(request.action === 'sendSessionData'){  // Called from practice page in order to send the data
-		//console.log(request.action);
 		practice.sendSessionData();
 	} else if (request.action === 'addWordToDict') {
 		console.log('should add word' + request.word);
@@ -191,10 +184,14 @@ var util = {
 	var id = chrome.contextMenus.create({
 		title: 'New Word', 
 		onclick: function(info, tab) {
-			if (info.pageUrl.match(/https:\/\/chrome.google.com\/[extensions|webstore]/i))
+			if (info.pageUrl.match(/https:\/\/chrome.google.com\/[extensions|webstore]/i)){
 				return alert('Lingvo Tutor can\'t add words from thos page.');
-
-			chrome.tabs.create({url: chrome.extension.getURL('options.html#addWordTab')});
+			} else if (info.selectionText.length){
+				console.log(info);
+				
+				//chrome.tabs.create({url: chrome.extension.getURL('options.html#addWordTab#'+info.selectionText)});
+			}
+			
 		}, 
 		contexts:['all']
 	});

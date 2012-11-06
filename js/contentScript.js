@@ -8,7 +8,6 @@ function initListeners(){
 	$(document).dblclick(function(e){
 		var sel = window.getSelection().toString();
 		console.log(sel);
-		//console.log($(e.target));
 
 		if (sel.trim().length){
 			$(e.target).popover({
@@ -19,23 +18,25 @@ function initListeners(){
 				html: 'true',
 				content: function(){ 
 					return '<form class="form-horizontal">'
-							+		'<input id="word" class="" type="text" placeholder="word" style="width:195px">'
-							+		'<textarea class="dropdown-toggle" id="translation" data-toggle="dropdown" placeholder="translation" style="width:195px"></textarea>'
-							+		'<textarea  id="description" placeholder="Example" style="width:195px"></textarea>'
+							+		'<input id="word" class="cs word-box" type="text" placeholder="word" style="width:195px">'
+							+		'<textarea id="translation" class="cs dropdown-toggle translation-box" data-toggle="dropdown" placeholder="translation" style="width:195px"></textarea>'
+							+		'<textarea id="description" class="cs example-box" placeholder="Example" style="width:195px"></textarea>'
 							+'</form>';},
-				title: function(){return '<table width="100%">'
+				title: function(){return '<table class="cs" width="100%">'
 										+	'<tr>'
-										+	'<td><button type="button" class="btn">Close</button></td>'
-										+	'<td><div style="text-align: center; color: black;"><strong>Add Word</strong></div></td>'
-										+	'<td style="text-align: right"><button type="button" id="addNewEntryBtn" class="btn">Add</button></td>'
+										+	'<td><button id="ltPlayBtn" type="button" class="cs btn">Play</button></td>'
+										+	'<td><div class="cs title" style="text-align: center; color: black;">Add Word</div></td>'
+										+	'<td style="text-align: right"><button type="button" id="addNewEntryBtn" class="cs btn">Add</button></td>'
 										+	'</tr>'
 										+'</table>'},
 			});
-			$('div.popover').remove();
+
+			$('div.popover').remove();  // remove existing popovers
 			$(e.target).popover('show');
-			//$('div.popover').css('top', e.pageY);
-			//$('div.popover').css('left', (e.pageX - $('div.popover').css('width')/2));
 			$('div.popover').find('input#word').val(sel);
+			$('div.popover').css('top', e.pageY + 5);
+			$('div.popover').css('left', (e.pageX - 236/2)); // 236 is popover width defined in css
+
 			
 		}
 		

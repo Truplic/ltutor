@@ -1,8 +1,9 @@
-div.editable-field{ position: relative; padding: 5px 0 5px 4px; }
-div.input{outline: 1px solid lightgray;}
+div.editable-field{ position: relative; padding: 5px 0 5px 4px; outline: 0px;}
+div.editable-field[contenteditable="true"]{ position: relative; padding: 5px 0 5px 4px; outline: 1px solid lightgray;}
 
-
-
+div.org-value { position: relative; padding: 5px 0 5px 4px; outline: 0px; font-style: italic;}
+div.correct { color: green; font-weight: bold;}
+div.wrong { color:red; font-weight: bold; text-decoration:line-through;}
 .flip {
   -webkit-perspective: 800;
     position: relative;

@@ -14,10 +14,10 @@ function initListeners(){
 	var learningMode;
 	learningMode = getBg().ls.get('learningMode');
 	if(typeof learningMode !== 'undefined'){
-		$('#' + getBg().ls.get('learningMode') ).removeClass('hidden'); // SHOW MODE
+		$('#' + learningMode ).removeClass('hidden'); // SHOW MODE
 	}else{
 		$('#tutorMode').removeClass('hidden'); // SHOW MODE
-		console.log('Warning! Unable to detect learningMode.');
+		console.log('Warning! Unable to detect learningMode. Selected tutorMode by default.');
 	}
 	
 	if (googleTranslate.isAudioPlayable()){
@@ -28,11 +28,13 @@ function initListeners(){
 	// TUTOR LISTENERS
 	.on('click', 'button#checkBtn', function(){			// CHECK button
 		$(this).text('Next').attr('id', 'nextBtn');
+		$('#translation').attr('contenteditable', 'false');  // disable editing
 		practiceHandler.validate();
 		practiceHandler.showCorrect();
 		
 	}).on('click', 'button#nextBtn', function(){		// NEXT button
 		$(this).text('Check').attr('id', 'checkBtn');
+		$('#translation').attr('contenteditable', 'true');  // disable editing
 		practiceHandler.setNextWord();
 		practiceHandler.insert();
 		
@@ -47,7 +49,6 @@ function initListeners(){
 	.on('click', 'div.face.front div.front-container', function(){			// FLIP FACE action
         $(this).closest('.card').addClass('flipped');
 		practiceHandler.showCorrect();
-
 	}).on('click', '.validate-card-btn', function(evt){
 		var cardValidation = parseFloat($(this).attr('lt_data'));
 		$(this).closest('.card').removeClass('flipped');
@@ -57,7 +58,8 @@ function initListeners(){
 		}
 		practiceHandler.setNextWord();
 		practiceHandler.insert();
-				
+		
+		
 	}).on('click', '#playWordBtn', function(){
 		practiceHandler.playAudio();
 	});
@@ -92,9 +94,9 @@ practiceHandler = {
 	s_learnedTreshold: 0,
 	insert: function(){
 		practiceHandler.clearAllEntries();
+		practiceHandler.updateProgressBar();
 		if (practiceHandler.data_array.length) {  // check if data is fetched
 			if(practiceHandler.n_currentWord < practiceHandler.data_array.length){ 	// check if there are words to practice left
-				$('#practiceProgress').find('.bar').css('width', ((practiceHandler.n_currentWord/practiceHandler.data_array.length)*100)+'%');
 				$('.word').html(practiceHandler.getCurrentEntry().word);
 				$('.description').html(practiceHandler.getCurrentEntry().description);
 
@@ -115,7 +117,6 @@ practiceHandler = {
 	},
 	validate: function(){
 		var myHits, orgTranslation_array, myTranslation, orgEntry;
-
 		orgEntry = practiceHandler.getCurrentEntry();
 		n_hits = orgEntry.hits;
 		orgTranslation_array = orgEntry.translation.toLowerCase().latinize().split(/[ ;,.]+/); // split by comma, semicolon or space and 
@@ -124,10 +125,12 @@ practiceHandler = {
 		// console.log('validation for entered  word "'+myTranslation+'" started...');
 		if ($.inArray(myTranslation, orgTranslation_array) >= 0) { 	// is myTranslation in the array (returns -1 if not)
 			console.log('[Info] Correct!! Word found on place: ' + $.inArray(myTranslation, orgTranslation_array));
+			$('.translation').addClass('correct');
 			$('#validationResult').text('Correct!');
 			practiceHandler.updateDb(++n_hits);
 		}else{
 			$('#validationResult').text('[Info] Wrong!');
+			$('.translation').addClass('wrong');
 			practiceHandler.updateDb(--n_hits);
 		}
 		
@@ -136,12 +139,14 @@ practiceHandler = {
 		// Display original entries
 		var orgEntry = practiceHandler.getCurrentEntry();
 		$('.word').html(orgEntry.word);
-		$('.translation').html(orgEntry.translation);
+		$('.translation').siblings('.org-value').html(orgEntry.translation);
 		$('.description').html(orgEntry.description);
 	},
 	clearAllEntries: function(){
 		$('.editable-field').text('');	// erase all input fields
+		$('.editable-field').removeClass('correct wrong');
 		$('.translation').focus();
+		//$('.org-value').text('');
 	},
 	updateDb: function(n_newHits){
 		var newState, orgEntry, mewTrend;
@@ -151,6 +156,9 @@ practiceHandler = {
 		mewTrend = practiceHandler.getCurrentEntry().trend.toString() + n_newHits.toString() + ',';
 		console.log('State is: '+mewTrend);
 		getBg().db.tx({name: 'validation_update', id: practiceHandler.getCurrentEntry().id, hits: n_newHits, trend: mewTrend, state: newState}, []);
+	},
+	updateProgressBar: function(){
+		$('#practiceProgress').find('.bar').css('width', (((practiceHandler.n_currentWord + 1)/practiceHandler.data_array.length)*100)+'%');
 	},
 	setNextWord: function(){
 		practiceHandler.n_currentWord ++;
