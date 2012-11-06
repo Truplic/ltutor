@@ -1,26 +1,3 @@
-table.lt-style {
-	width: 100%;
-	padding: 0;
-	margin: 0;
-	border: 0;
-	font-size: 100%;
-	font: Arial;
-	vertical-align: baseline;
-	border-collapse: collapse;
-	border-spacing: 0;
-	table-layout: fixed;
-}
-input.lt-style , 
-textarea.lt-style  {
-	width: 200px;
-	padding: 0;
-	margin: 0;
-	border: 0;
-	font-size: 100%;
-	font: Arial;
-	vertical-align: baseline;
-}
-
 /*!
  * Bootstrap v2.2.1
  *

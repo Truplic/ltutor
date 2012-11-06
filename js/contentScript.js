@@ -11,6 +11,7 @@ function initListeners(){
 
 		if (sel.trim().length){
 			$(e.target).popover({
+				template: '<div class="lt-style popover"><div class="arrow"></div><div class="lt-style popover-inner"><h3 class="lt-style popover-title"></h3><div class="lt-style popover-content"><p></p></div></div></div>',
 				left: 5,
 				top: 100,
 				placement: 'bottom',
@@ -18,15 +19,15 @@ function initListeners(){
 				html: 'true',
 				content: function(){ 
 					return '<form class="form-horizontal">'
-							+		'<input id="word" class="cs word-box" type="text" placeholder="word" style="width:195px">'
-							+		'<textarea id="translation" class="cs dropdown-toggle translation-box" data-toggle="dropdown" placeholder="translation" style="width:195px"></textarea>'
-							+		'<textarea id="description" class="cs example-box" placeholder="Example" style="width:195px"></textarea>'
+							+		'<input id="word" class="lt-style word-box" type="text" placeholder="word">'
+							+		'<textarea id="translation" class="lt-style translation-box" data-toggle="dropdown" placeholder="translation"></textarea>'
+							+		'<textarea id="description" class="lt-style example-box" placeholder="Example"></textarea>'
 							+'</form>';},
-				title: function(){return '<table class="cs" width="100%">'
+				title: function(){return '<table class="lt-style" width="100%">'
 										+	'<tr>'
-										+	'<td><button id="ltPlayBtn" type="button" class="cs btn">Play</button></td>'
+										+	'<td><button id="ltPlayBtn" type="button" class="lt-style btn">Play</button></td>'
 										+	'<td><div class="cs title" style="text-align: center; color: black;">Add Word</div></td>'
-										+	'<td style="text-align: right"><button type="button" id="addNewEntryBtn" class="cs btn">Add</button></td>'
+										+	'<td style="text-align: right"><button type="button" id="addNewEntryBtn" class="lt-style btn">Add</button></td>'
 										+	'</tr>'
 										+'</table>'},
 			});
