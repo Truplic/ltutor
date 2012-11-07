@@ -4,6 +4,16 @@ initListeners();
 
 });
 
+function getBg(){
+	"use strict"
+	return chrome.extension.getBackgroundPage();
+}
+chrome.extension.sendMessage({action: "detectTabLang"});
+chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
+	if(request.action === 'tabLanguage'){
+		alert(request.data);
+	}
+});
 function initListeners(){
 	$(document).dblclick(function(e){
 		var sel = window.getSelection().toString();
@@ -11,14 +21,14 @@ function initListeners(){
 
 		if (sel.trim().length){
 			$(e.target).popover({
-				template: '<div class="lt-style popover"><div class="arrow"></div><div class="lt-style popover-inner"><h3 class="lt-style popover-title"></h3><div class="lt-style popover-content"><p></p></div></div></div>',
+				template: '<div class="lt-style popover"><div class="arrow lt-style"></div><div class="lt-style popover-inner"><h3 class="lt-style popover-title"></h3><div class="lt-style popover-content"><p class="lt-style"></p></div></div></div>',
 				left: 5,
 				top: 100,
 				placement: 'bottom',
 				trigger: 'manual',
 				html: 'true',
 				content: function(){ 
-					return '<form class="form-horizontal">'
+					return '<form class="form-horizontal lt-style">'
 							+		'<input id="word" class="lt-style word-box" type="text" placeholder="word">'
 							+		'<textarea id="translation" class="lt-style translation-box" data-toggle="dropdown" placeholder="translation"></textarea>'
 							+		'<textarea id="description" class="lt-style example-box" placeholder="Example"></textarea>'
@@ -26,7 +36,7 @@ function initListeners(){
 				title: function(){return '<table class="lt-style" width="100%">'
 										+	'<tr>'
 										+	'<td><button id="ltPlayBtn" type="button" class="lt-style btn">Play</button></td>'
-										+	'<td><div class="cs title" style="text-align: center; color: black;">Add Word</div></td>'
+										+	'<td><div class="lt-style title" >Add Word</div></td>'
 										+	'<td style="text-align: right"><button type="button" id="addNewEntryBtn" class="lt-style btn">Add</button></td>'
 										+	'</tr>'
 										+'</table>'},

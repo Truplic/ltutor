@@ -489,7 +489,7 @@ var newWordForm = {
 	},
 	insertPlaceholders: function(){
 		var activeTable = util.getActiveTable();
-		if ((util.getActiveTable().iLearn !== null) && (util.getActiveTable().iSpeak !== null)){
+		if ((activeTable.iLearn !== null) && (activeTable.iSpeak !== null)){
 			$('input#word').attr('placeholder', googleTranslate.getAttrValue(activeTable.iLearn, 'name') + '...');
 			$('textarea#translation').attr('placeholder', googleTranslate.getAttrValue(activeTable.iSpeak, 'name') + '...');
 		} else {

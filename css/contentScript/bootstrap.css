@@ -1,3 +1,45 @@
+/**
+ * html5doctor.com Reset Stylesheet v1.6.1 (http://html5doctor.com/html-5-reset-stylesheet/)
+ * Richard Clark (http://richclarkdesign.com)
+ * http://cssreset.com
+ */
+form.lt-style,
+p.lt-style,
+table.lt-style{
+    margin:0 !important;
+    padding:0 !important;
+    border:0 !important;
+    outline:0 !important;
+    font-size:100% !important;
+    vertical-align:baseline !important;
+    background:transparent !important;
+    border-collapse:collapse !important;
+    border-spacing:0 !important;
+}
+table.lt-style td {
+    margin:0 !important;
+    padding:0 !important;
+    border:0 !important;
+    outline:0 !important;
+    font-size:100% !important;
+    vertical-align:baseline !important;
+    background:transparent !important;
+	border: 0px solid none!important;
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+}
+
+
+input.lt-style, select.lt-style {
+    vertical-align:middle !important;
+}
+
+input.lt-style,
+textarea.lt-style  {
+	width: 195px !important;
+}
+.lt-style.title {
+ text-align: center;
+}
 /*!
  * Bootstrap v2.2.1
  *
@@ -28,7 +70,7 @@
   background-color: transparent;
   border: 0;
 }
-.input-block-level {
+.input.lt-style-block-level {
   display: block;
   width: 100%;
   min-height: 30px;
@@ -70,11 +112,11 @@
   margin-left: -10px;
 }
 .lt-style.popover-title {
-  margin: 0;
-  padding: 8px 14px;
-  font-size: 14px;
-  font-weight: normal;
-  line-height: 18px;
+  margin: 0!important;
+  padding: 8px 14px!important;
+  font-size: 14px !important;
+  font-weight: normal!important;
+  line-height: 18px!important;
   background-color: #f7f7f7;
   border-bottom: 1px solid #ebebeb;
   -webkit-border-radius: 5px 5px 0 0;
@@ -251,4 +293,122 @@
   -webkit-box-shadow: none;
   -moz-box-shadow: none;
   box-shadow: none;
+}
+
+/* FORMS */
+
+input.lt-style,
+button.lt-style,
+select.lt-style,
+textarea.lt-style {
+  font-size: 14px!important;
+  font-weight: normal!important;
+  line-height: 20px!important;
+}
+input.lt-style,
+button.lt-style,
+select.lt-style,
+textarea.lt-style {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+}
+label.lt-style {
+  display: block;
+  margin-bottom: 5px;
+}
+select.lt-style,
+textarea.lt-style,
+input.lt-style[type="text"],
+input.lt-style[type="password"],
+input.lt-style[type="datetime"],
+input.lt-style[type="datetime-local"],
+input.lt-style[type="date"],
+input.lt-style[type="month"],
+input.lt-style[type="time"],
+input.lt-style[type="week"],
+input.lt-style[type="number"],
+input.lt-style[type="email"],
+input.lt-style[type="url"],
+input.lt-style[type="search"],
+input.lt-style[type="tel"],
+input.lt-style[type="color"],
+.uneditable-input.lt-style {
+  display: inline-block !important;
+  height: 20px !important;
+  padding: 4px 6px !important;
+  margin-bottom: 10px !important;
+  font-size: 14px !important;
+  line-height: 20px !important;
+  color: #555555 !important;
+  -webkit-border-radius: 4px !important;
+  -moz-border-radius: 4px !important;
+  border-radius: 4px !important;
+  vertical-align: middle !important;
+}
+
+textarea.lt-style {
+  height: auto !important;
+}
+textarea.lt-style,
+input.lt-style[type="text"],
+input.lt-style[type="password"],
+input.lt-style[type="datetime"],
+input.lt-style[type="datetime-local"],
+input.lt-style[type="date"],
+input.lt-style[type="month"],
+input.lt-style[type="time"],
+input.lt-style[type="week"],
+input.lt-style[type="number"],
+input.lt-style[type="email"],
+input.lt-style[type="url"],
+input.lt-style[type="search"],
+input.lt-style[type="tel"],
+input.lt-style[type="color"],
+.uneditable-input.lt-style {
+  background-color: #ffffff !important;
+  border: 1px solid #cccccc !important;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075) !important;
+  -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075) !important;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075) !important;
+  -webkit-transition: border linear .2s, box-shadow linear .2s !important;
+  -moz-transition: border linear .2s, box-shadow linear .2s !important;
+  -o-transition: border linear .2s, box-shadow linear .2s !important;
+  transition: border linear .2s, box-shadow linear .2s !important;
+}
+textarea.lt-style:focus,
+input.lt-style[type="text"]:focus,
+input.lt-style[type="password"]:focus,
+input.lt-style[type="datetime"]:focus,
+input.lt-style[type="datetime-local"]:focus,
+input.lt-style[type="date"]:focus,
+input.lt-style[type="month"]:focus,
+input.lt-style[type="time"]:focus,
+input.lt-style[type="week"]:focus,
+input.lt-style[type="number"]:focus,
+input.lt-style[type="email"]:focus,
+input.lt-style[type="url"]:focus,
+input.lt-style[type="search"]:focus,
+input.lt-style[type="tel"]:focus,
+input.lt-style[type="color"]:focus,
+.uneditable-input.lt-style:focus {
+  border-color: rgba(82, 168, 236, 0.8) !important;
+  outline: 0 !important;
+  outline: thin dotted \9 !important;
+  /* IE6-9 */
+
+  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(82,168,236,.6) !important;
+  -moz-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(82,168,236,.6) !important;
+  box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(82,168,236,.6) !important;
+}
+
+input.lt-style:-moz-placeholder,
+textarea.lt-style:-moz-placeholder {
+  color: #999999 !important;
+}
+input.lt-style:-ms-input.lt-style-placeholder,
+textarea.lt-style:-ms-input.lt-style-placeholder {
+  color: #999999 !important;
+}
+input.lt-style::-webkit-input.lt-style-placeholder,
+textarea.lt-style::-webkit-input.lt-style-placeholder {
+  color: #999999 !important;
 }

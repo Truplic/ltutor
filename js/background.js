@@ -152,6 +152,15 @@ chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
 				translation: request.translation,
 				description: request.example
 			}, []);
+	} else if (request.action === 'detectTabLang'){
+		console.log('should detect tab Language');
+		chrome.tabs.getSelected(null, function(tab){
+			chrome.tabs.detectLanguage(tab.id, function(language) {
+				console.log(language);
+				chrome.tabs.sendMessage(tab.id, {action: 'tabLanguage', data: language});
+			});
+			
+		});
 	}
 });
 
@@ -164,9 +173,13 @@ var util = {
 
 }
 
-
-
-
+/*
+chrome.tabs.getSelected(null, function(tab) {
+  chrome.tabs.detectLanguage(tab.id, function(language) {
+    console.log(language);
+  });
+});
+*/
 
 
 

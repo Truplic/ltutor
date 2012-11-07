@@ -15,7 +15,7 @@
 		"all_frames": true,
 		"css": ["css/contentScript/bootstrap.css"],
 		"matches": ["http://*/*", "https://*/*"],
-		"js": ["libs/js/jquery.js", "libs/js/bootstrap-tooltip.js", "libs/js/bootstrap-popover.js", "js/contentScript.js"]
+		"js": ["libs/js/jquery.js", "libs/js/bootstrap-tooltip.js", "libs/js/bootstrap-popover.js", "js/contentScript.js", "js/gtranslate.js"]
 	}
 	],
 	"icons": { 
