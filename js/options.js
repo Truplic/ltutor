@@ -78,7 +78,6 @@ var init = {
 				}
 				$(this).closest('div.add-word-form').find('.help-inline:visible:first').siblings('input, textarea').focus();
 			}
-
 		}).on('keyup', '#word', function(){
 			var word, activeTable;
 			word = $(this).val();
@@ -252,14 +251,22 @@ var init = {
 		// Settings
 		$('#settingsContainer').on('keyup', '.numerical-uint', function(){
 			this.value = this.value.replace(/[^0-9]/g,'');
-		}).on('change', '.numerical-uint', function(){
-			var id;
-			if ($(this).val()===''){  // no number 
-				$(this).val(getBg().ls.get([$(this).attr('data-lskey')]));
-				console.log('value restored from ls');
+		}).on('change', '.settings-input', function(){
+			var key, value;
+			key = $(this).attr('data-lskey');
+			value = $(this).val();
+			
+			if(key.length){
+				if (value === ''){  // no number inserted, restore from ls
+					$(this).val(getBg().ls.get(key));
+					console.log('[Info] Value for settings '+ key + ' restored from ls');
+				} else {
+					getBg().ls.set($(this).attr('data-lskey'), value);
+					//$(this).closest('.controls').find('.slider-number').text($(this).val());
+					console.log('[Info] Settings'+key +' changed to '+value);
+				}
 			} else {
-				getBg().ls.set($(this).attr('data-lskey'), $(this).val());
-				console.log($(this).attr('data-lskey')+' changed to '+$(this).val());
+				console.log('[Info] Settings key doesnt exists for this field');
 			}
 		}).on('click', 'button.settings-btn', function(){  // settings buttons in general
 			getBg().ls.set($(this).attr('data-lskey'), $(this).attr('data-lsvalue'));
