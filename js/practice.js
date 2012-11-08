@@ -90,13 +90,26 @@ chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
 
 practiceHandler = {
 	data_array: new Array(),
-	n_currentWord: 0,
+	//n_currentWord: 0,
+	getCurrentWordNmr: function(){
+		if (sessionStorage.getItem('currentWord') !== null){
+			//console.log('state of session storage is: ' + sessionStorage.getItem('currentWord') );
+			return parseInt(sessionStorage.getItem('currentWord'));
+		}else{
+			sessionStorage.setItem('currentWord', 0);
+			//console.log('state of session storage is: ' + sessionStorage.getItem('currentWord') );
+			return 0;
+		}
+	},
+	setNextWord: function(){
+		sessionStorage.setItem('currentWord', (practiceHandler.getCurrentWordNmr()+1));
+	},
 	s_learnedTreshold: 0,
 	insert: function(){
 		practiceHandler.clearAllEntries();
 		practiceHandler.updateProgressBar();
 		if (practiceHandler.data_array.length) {  // check if data is fetched
-			if(practiceHandler.n_currentWord < practiceHandler.data_array.length){ 	// check if there are words to practice left
+			if(practiceHandler.getCurrentWordNmr() < practiceHandler.data_array.length){ 	// check if there are words to practice left
 				$('.word').html(practiceHandler.getCurrentEntry().word);
 				$('.description').html(practiceHandler.getCurrentEntry().description);
 
@@ -158,13 +171,10 @@ practiceHandler = {
 		getBg().db.tx({name: 'validation_update', id: practiceHandler.getCurrentEntry().id, hits: n_newHits, trend: mewTrend, state: newState}, []);
 	},
 	updateProgressBar: function(){
-		$('#practiceProgress').find('.bar').css('width', (((practiceHandler.n_currentWord + 1)/practiceHandler.data_array.length)*100)+'%');
-	},
-	setNextWord: function(){
-		practiceHandler.n_currentWord ++;
+		$('#practiceProgress').find('.bar').css('width', (((practiceHandler.getCurrentWordNmr() + 1)/practiceHandler.data_array.length)*100)+'%');
 	},
 	getCurrentEntry: function(){
-		return practiceHandler.data_array[practiceHandler.n_currentWord];
+		return practiceHandler.data_array[practiceHandler.getCurrentWordNmr()];
 	},
 	playAudio: function(){
 		googleTranslate.playWord(practiceHandler.getCurrentEntry().word);
