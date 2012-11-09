@@ -11,7 +11,7 @@ $(function(){
 });
 
 function init(){
-	var tableName = ls.get('activeTable').name;
+	var tableName = util.getActiveTable().name;
 	// TIMER Initialization
 	if(ls.get('learnedTreshold') !== '0'){ // 0min means no repetition
 		/*var t=setInterval(function() {
@@ -152,12 +152,12 @@ chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
 				translation: request.translation,
 				description: request.example
 			}, []);
-	} else if (request.action === 'detectTabLang'){
+	} else if (request.action === 'getLangInfo'){
 		console.log('should detect tab Language');
 		chrome.tabs.getSelected(null, function(tab){
 			chrome.tabs.detectLanguage(tab.id, function(language) {
 				console.log(language);
-				chrome.tabs.sendMessage(tab.id, {action: 'tabLanguage', data: language});
+				chrome.tabs.sendMessage(tab.id, {action: 'langInfo', tabLang: language, iSpeak: util.getActiveTable().iSpeak, iLearn: util.getActiveTable().iLearn});
 			});
 			
 		});
@@ -169,6 +169,9 @@ var util = {
 	isOnline: function(){
 		"use strict"
 		return navigator.onLine;
+	},
+	getActiveTable: function(){
+		return ls.get('activeTable');
 	}
 
 }

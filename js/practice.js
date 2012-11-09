@@ -20,7 +20,7 @@ function initListeners(){
 		console.log('Warning! Unable to detect learningMode. Selected tutorMode by default.');
 	}
 	
-	if (googleTranslate.isAudioPlayable()){
+	if (googleTranslate.isAudioPlayable(getBg().ls.get('activeTable').iLearn)){
 		$('#playWordBtn').removeClass('hidden');
 	}
 	
@@ -30,7 +30,7 @@ function initListeners(){
 		$(this).text('Next').attr('id', 'nextBtn');
 		$('#translation').attr('contenteditable', 'false');  // disable editing
 		practiceHandler.validate();
-		practiceHandler.showCorrect();
+		//practiceHandler.showCorrect();
 		
 	}).on('click', 'button#nextBtn', function(){		// NEXT button
 		$(this).text('Check').attr('id', 'checkBtn');
@@ -58,7 +58,6 @@ function initListeners(){
 		}
 		practiceHandler.setNextWord();
 		practiceHandler.insert();
-		
 		
 	}).on('click', '#playWordBtn', function(){
 		practiceHandler.playAudio();
@@ -90,14 +89,10 @@ chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
 
 practiceHandler = {
 	data_array: new Array(),
-	//n_currentWord: 0,
 	getCurrentWordNmr: function(){
 		if (sessionStorage.getItem('currentWord') !== null){
-			//console.log('state of session storage is: ' + sessionStorage.getItem('currentWord') );
 			return parseInt(sessionStorage.getItem('currentWord'));
-		}else{
-			sessionStorage.setItem('currentWord', 0);
-			//console.log('state of session storage is: ' + sessionStorage.getItem('currentWord') );
+		} else {
 			return 0;
 		}
 	},
@@ -135,7 +130,6 @@ practiceHandler = {
 		orgTranslation_array = orgEntry.translation.toLowerCase().latinize().split(/[ ;,.]+/); // split by comma, semicolon or space and 
 		myTranslation = $('.translation').text().trim().toLowerCase().latinize().split(/[ ;,.]+/)[0]; // take only the first word TODO: is this the best solution for multiple words?
 
-		// console.log('validation for entered  word "'+myTranslation+'" started...');
 		if ($.inArray(myTranslation, orgTranslation_array) >= 0) { 	// is myTranslation in the array (returns -1 if not)
 			console.log('[Info] Correct!! Word found on place: ' + $.inArray(myTranslation, orgTranslation_array));
 			$('.translation').addClass('correct');
@@ -145,6 +139,7 @@ practiceHandler = {
 			$('#validationResult').text('[Info] Wrong!');
 			$('.translation').addClass('wrong');
 			practiceHandler.updateDb(--n_hits);
+			practiceHandler.showCorrect();
 		}
 		
 	},
@@ -177,7 +172,7 @@ practiceHandler = {
 		return practiceHandler.data_array[practiceHandler.getCurrentWordNmr()];
 	},
 	playAudio: function(){
-		googleTranslate.playWord(practiceHandler.getCurrentEntry().word);
+		googleTranslate.playWord(practiceHandler.getCurrentEntry().word, getBg().ls.get('activeTable').iLearn);
 	}
 
 }

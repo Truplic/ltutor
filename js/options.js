@@ -82,13 +82,13 @@ var init = {
 			var word, activeTable;
 			word = $(this).val();
 			activeTable = util.getActiveTable();
-			if (word.length && googleTranslate.isAudioPlayable()){
+			if (word.length && googleTranslate.isAudioPlayable(activeTable.iLearn)){
 				$('button#playWordBtn').removeClass('hidden');
 			}else{
 				$('button#playWordBtn').addClass('hidden');
 			}
 		}).on('click', '#playWordBtn', function(){
-			googleTranslate.playWord($('#word').val());
+			googleTranslate.playWord($('#word').val(), util.getActiveTable().iLearn);
 		
 		}).on('keypress', '#word, #translation', function(){
 			$(this).closest('.control-group').removeClass('warning');
@@ -244,7 +244,7 @@ var init = {
 			
 		}).on('click', 'button.play-btn', function(){			// PLAY button
 			var txt = $(this).closest('tr.table-row').find('div.[lt_dblinked="word"]').text();
-			googleTranslate.playWord(txt);
+			googleTranslate.playWord(txt, util.getActiveTable().iLearn);
 		});
 		
 		///////////////////////////////////////
@@ -647,7 +647,7 @@ var dTable = {
 			}
 			
 			audioBtnHtml = googleTranslate.getAttrValue(util.getActiveTable().iLearn, 'hasAudio') ? '<button class="btn play-btn connection-dependent" type="button" '
-						+ (getBg().util.isOnline() ? '' :  'disabled')+'><i href="#" class="icon-play" ></i></button>' : '';	
+						+ (navigator.onLine ? '' :  'disabled')+'><i href="#" class="icon-play" ></i></button>' : '';	
 
 			// Add row to data table
 			a = toLearnDT.fnAddData( [
@@ -700,7 +700,7 @@ var dTable = {
 			"use strict"
 			var  cRowElement, a, audioBtnHtml;
 			// Add row to data table
-			audioBtnHtml = googleTranslate.getAttrValue(util.getActiveTable().iLearn, 'hasAudio') ? '<button class="btn play-btn connection-dependent" type="button" '+ (getBg().util.isOnline()? '' :  'disabled')+'><i href="#" class="icon-play" ></i></button>' : '';
+			audioBtnHtml = googleTranslate.getAttrValue(util.getActiveTable().iLearn, 'hasAudio') ? '<button class="btn play-btn connection-dependent" type="button" '+ (navigator.onLine? '' :  'disabled')+'><i href="#" class="icon-play" ></i></button>' : '';
 			a = learnedDT.fnAddData( [
 				'<div id="word'+ row.id +'" class="" lt_dbLinked="word" >'+row.word+'</div>',
 				'<div id="translation_'+ row.id +'" class="" lt_dbLinked="translation">'+row.translation+'</div>',
@@ -825,7 +825,7 @@ var util= {
 	},
 	updateConnectionStatus: function(){
 		"use strict"
-		if (getBg().util.isOnline()){	// if online
+		if (navigator.onLine){	// if online
 			console.log('[Info] We are online.');
 			$('.connection-dependent').prop("disabled", false);
 		} else {

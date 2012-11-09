@@ -31,6 +31,38 @@
 		}
 
 	},
+     playWord: function(word, lang){
+          "use strict"
+          if (googleTranslate.isAudioPlayable(lang)) {
+               $('#ltPlayer').remove();
+
+               $('body').append(
+                    '<div id="ltPlayer" hidden>'
+                    + '<audio controls="controls">'
+                    +    '<source src='+ googleTranslate.getGoogleUrl("audio", lang, [], word ) +' type="audio/mpeg">'
+                    +'</audio>'
+                    +'</div>');
+
+               $('audio').trigger('play');
+          }
+     },
+     isAudioPlayable: function(lang){
+          if (navigator.onLine && googleTranslate.getAttrValue(lang, 'hasAudio') && lang.length){
+               return true;
+          } else {
+               return false;
+          }
+     },
+     getAttrValue: function(lanAbbr, attr){
+          var attrValue;
+          $.grep( googleTranslate.languageList, function(n, i){
+               if (n.abbr.toLowerCase() === lanAbbr.toLowerCase()){
+                    attrValue = n[attr];
+                    return false;  // to exit the loop
+               }
+           });
+          return attrValue;
+     },
 	languageList: [
      { name: 'Auto', 				abbr: 'auto', 	hasAudio: false	},
      { name: 'Afrikaans', 			abbr: 'af', 	hasAudio: true	},
@@ -99,35 +131,6 @@
      { name: 'Vietnamese', 			abbr: 'vi', 	hasAudio: true	},
      { name: 'Welsh', 				abbr: 'cy', 	hasAudio: true	},
      { name: 'Yiddish', 			abbr: 'yi', 	hasAudio: false	}
-    ],
-	getAttrValue: function(lanAbbr, attr){
-		var attrValue;
-		$.grep( googleTranslate.languageList, function(n, i){
-			if (n.abbr.toLowerCase() === lanAbbr.toLowerCase()){
-				attrValue = n[attr];
-				return false;  // to exit the loop
-			}
-		 });
-		return attrValue;
-	},
-	playWord: function(word){
-		"use strict"
-		if (googleTranslate.isAudioPlayable()) {
-			$('#ltPlayer').children().remove();
-			$('#ltPlayer').append(
-				'<audio controls="controls">'
-				+	'<source src='+ googleTranslate.getGoogleUrl("audio", getBg().ls.get('activeTable').iLearn, [], word ) +' type="audio/mpeg">'
-				+	'Your browser does not support the audio element.'
-				+'</audio>'	);
-			$('audio').trigger('play');
-		}
-	},
-	isAudioPlayable: function(){
-		if (getBg().util.isOnline() && googleTranslate.getAttrValue(getBg().ls.get('activeTable').iLearn, 'hasAudio')){
-			return true;
-		} else {
-			return false;
-		}
-	}
+    ]
 
 }
