@@ -1,14 +1,19 @@
-chrome.extension.sendMessage({action: "getLangInfo"});
-chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
-	if(request.action === 'langInfo'){
-		initListeners();
-		ltPopover.tabLang = request.tabLang;
-		ltPopover.iSpeak = request.iSpeak;
-		ltPopover.iLearn = request.iLearn;
+$(function(){
+	initListeners();
+	chrome.extension.sendMessage({action: "getLangInfo"});
+	chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
+		if(request.action === 'langInfo'){
+			ltPopover.tabLang = request.tabLang;
+			ltPopover.iSpeak = request.iSpeak;
+			ltPopover.iLearn = request.iLearn;
 
-		console.log('Tab language is:' + ltPopover.tabLang + ', Dict table is: '+ltPopover.iLearn);
-	}
+			console.log('Tab language is:' + ltPopover.tabLang + ', Dict table is: '+ltPopover.iLearn);
+		}
+	});
+
+
 });
+
 function initListeners(){
 	$(document).dblclick(function(e){
 		var sel = window.getSelection().toString().trim();
@@ -29,7 +34,7 @@ function initListeners(){
 		$popover.remove();
 	}).on('click', 'button#ltPlayBtn', function(){
 		console.log('[Info] Should play word' + ltPopover.selWord);
-		googleTranslate.playWord(ltPopover.selWord, ltPopover.iLearn);
+		googleTranslate.audio.play(ltPopover.iLearn, ltPopover.selWord, []);
 	});
 
 	
@@ -57,7 +62,7 @@ var ltPopover = {
 						+'</form>';},
 			title: function(){return '<table class="lt-style" width="100%">'
 									+	'<tr>'
-									+	'<td>'+ (googleTranslate.isAudioPlayable(ltPopover.iLearn)  ? '<button id="ltPlayBtn" type="button" class="lt-style btn">Play</button>' : '') +'</td>'
+									+	'<td>'+ (googleTranslate.audio.isPlayable(ltPopover.iLearn)  ? '<button id="ltPlayBtn" type="button" class="lt-style btn">Play</button>' : '') +'</td>'
 									+	'<td><div class="lt-style title" >Add Word</div></td>'
 									+	'<td style="text-align: right"><button type="button" id="addNewEntryBtn" class="lt-style btn">Add</button></td>'
 									+	'</tr>'
@@ -68,7 +73,7 @@ var ltPopover = {
 		// insert WORD
 		$('div.popover').find('input#word').val(ltPopover.selWord);
 		// insert TRANSLATION
-		translation = googleTranslate.translationRequest(ltPopover.iLearn, ltPopover.iSpeak, ltPopover.selWord, 'translation', function(resp, fieldId){
+		translation = googleTranslate.translate(ltPopover.iLearn, ltPopover.iSpeak, ltPopover.selWord, 'translation', function(resp, fieldId){
 			if (typeof resp.sentences !== 'undefined' && fieldId === 'translation'){	// Translation handling for new word
 				if (resp.sentences[0].trans.toLowerCase() !== $('#word').val().toLowerCase()){  // if word not equal to orig.
 					$('#translation').val(resp.sentences[0].trans);
@@ -88,7 +93,7 @@ var ltPopover = {
 		$(evt.target).popover('show');
 		ltPopover.correctPos(evt);
 		ltPopover.setValues();
-	},
+	}
 
 
 }

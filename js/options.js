@@ -82,13 +82,13 @@ var init = {
 			var word, activeTable;
 			word = $(this).val();
 			activeTable = util.getActiveTable();
-			if (word.length && googleTranslate.isAudioPlayable(activeTable.iLearn)){
+			if (word.length && googleTranslate.audio.isPlayable(activeTable.iLearn)){
 				$('button#playWordBtn').removeClass('hidden');
 			}else{
 				$('button#playWordBtn').addClass('hidden');
 			}
 		}).on('click', '#playWordBtn', function(){
-			googleTranslate.playWord($('#word').val(), util.getActiveTable().iLearn);
+			util.play($('#word').val());
 		
 		}).on('keypress', '#word, #translation', function(){
 			$(this).closest('.control-group').removeClass('warning');
@@ -108,7 +108,8 @@ var init = {
 			activeTable = util.getActiveTable();
 			if (word.length){
 				console.log('[Info] Sending request for translation: ' + activeTable.iSpeak + ' | ' + activeTable.iLearn);
-				googleTranslate.translationRequest(activeTable.iLearn, activeTable.iSpeak, word, forFieldId, newWordForm.handleTranslation, []);
+				googleTranslate.translate(activeTable.iLearn, activeTable.iSpeak, word, forFieldId, newWordForm.handleTranslation, []);
+				googleTranslate.example(activeTable.iLearn, activeTable.iSpeak, word, forFieldId, newWordForm.handleExample, []);
 			}
 		}).on('focus', '.translation-box', function(){
 			translationDropdown.show($(this));
@@ -244,7 +245,7 @@ var init = {
 			
 		}).on('click', 'button.play-btn', function(){			// PLAY button
 			var txt = $(this).closest('tr.table-row').find('div.[lt_dblinked="word"]').text();
-			googleTranslate.playWord(txt, util.getActiveTable().iLearn);
+			util.play(txt);
 		});
 		
 		///////////////////////////////////////
@@ -517,6 +518,10 @@ var newWordForm = {
 			}
 		}
 		translationDropdown.create(resp.dict, $field);  // create dropdown with alternative translations
+	},
+	handleExample: function(resp, fieldId){
+		console.log(resp);
+
 	}
 }
 
@@ -837,6 +842,9 @@ var util= {
 		$('.nav-tabs a[href=#settingsTab]').tab('show');
 		$('#addTableModal').modal();
 		$('#toLearnLang').focus();
+	},
+	play: function(word){
+		googleTranslate.audio.play(util.getActiveTable().iLearn, word, []);
 	}
 }
 

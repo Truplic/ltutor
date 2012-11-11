@@ -20,7 +20,7 @@ function initListeners(){
 		console.log('Warning! Unable to detect learningMode. Selected tutorMode by default.');
 	}
 	
-	if (googleTranslate.isAudioPlayable(getBg().ls.get('activeTable').iLearn)){
+	if (googleTranslate.audio.isPlayable(getBg().ls.get('activeTable').iLearn)){
 		$('#playWordBtn').removeClass('hidden');
 	}
 	
@@ -172,7 +172,8 @@ practiceHandler = {
 		return practiceHandler.data_array[practiceHandler.getCurrentWordNmr()];
 	},
 	playAudio: function(){
-		googleTranslate.playWord(practiceHandler.getCurrentEntry().word, getBg().ls.get('activeTable').iLearn);
+		googleTranslate.audio.play(getBg().ls.get('activeTable').iLearn, practiceHandler.getCurrentEntry().word, []);
+		//googleTranslate.playWord(, getBg().ls.get('activeTable').iLearn);
 	}
 
 }
